@@ -140,6 +140,7 @@ class DrawingController extends ChangeNotifier {
     drawConfig = SafeValueNotifier<DrawConfig>(
         config ?? DrawConfig.def(contentType: SimpleLine));
     setPaintContent(content ?? SimpleLine());
+    bounds = Rect.fromLTRB(0, 0, 10, 10);
   }
 
   /// 绘制开始点
@@ -188,6 +189,9 @@ class DrawingController extends ChangeNotifier {
   Offset? get startPoint => _startPoint;
 
   ui.Offset get endPoint => endPoint;
+  Rect? bounds;
+  PaintContent? _lastDrawnContent;
+  Rect? selectedRect;
 
   /// 设置画板大小
   void setBoardSize(Size? size) {
@@ -279,6 +283,11 @@ class DrawingController extends ChangeNotifier {
     currentContent = _paintContent.copy();
     currentContent?.paint = drawConfig.value.paint;
     currentContent?.startDraw(startPoint);
+    bounds = Rect.fromLTRB(
+        startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
+    _lastDrawnContent =
+        currentContent; // Store the current content as the last drawn content
+    _refresh();
   }
 
   /// 取消绘制
@@ -290,6 +299,13 @@ class DrawingController extends ChangeNotifier {
   /// 正在绘制
   void drawing(Offset nowPaint) {
     currentContent?.drawing(nowPaint);
+    var rect = Rect.fromCenter(center: nowPaint, width: 0, height: 0);
+    if (bounds!.contains(rect.inflate(10.0).topLeft) &&
+        bounds!.contains(rect.inflate(10.0).bottomRight)) {
+      bounds = bounds!.inflate(-10.0);
+    } else {
+      bounds = bounds!.expandToInclude(rect.inflate(10.0));
+    }
     _refresh();
   }
 
@@ -308,9 +324,16 @@ class DrawingController extends ChangeNotifier {
       currentContent = null;
     }
 
+    // Update bounds to fit the current content
+    bounds = Rect.fromPoints(
+      Offset(bounds!.left + 10, bounds!.top + 10),
+      Offset(bounds!.right - 10, bounds!.bottom - 10),
+    );
+
     _refresh();
     _refreshDeep();
     notifyListeners();
+    _lastDrawnContent = currentContent;
   }
 
   /// 撤销

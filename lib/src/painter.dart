@@ -1,20 +1,23 @@
 import 'dart:async';
-import 'dart:ui';
+import 'dart:ui' as ui;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import '../paint_contents.dart';
 import 'drawing_controller.dart';
 import 'helper/ex_value_builder.dart';
-import 'paint_contents/paint_content.dart';
 
 /// 绘图板
 class Painter extends StatelessWidget {
   const Painter({
-    Key? key,
+    super.key,
     required this.drawingController,
     this.clipBehavior = Clip.antiAlias,
     this.onPointerDown,
     this.onPointerMove,
     this.onPointerUp,
-  }) : super(key: key);
+  });
 
   /// 绘制控制器
   final DrawingController drawingController;
@@ -89,7 +92,6 @@ class Painter extends StatelessWidget {
   void _onPanUpdate(DragUpdateDetails dud) {}
 
   void _onPanEnd(DragEndDetails ded) {}
-
   @override
   Widget build(BuildContext context) {
     return Listener(
@@ -131,16 +133,32 @@ class Painter extends StatelessWidget {
 /// 表层画板
 class _UpPainter extends CustomPainter {
   _UpPainter({required this.controller}) : super(repaint: controller.painter);
-
+  final icon = Icons.close;
   final DrawingController controller;
-
   @override
   void paint(Canvas canvas, Size size) {
-    if (controller.currentContent == null) {
-      return;
+    if (controller.currentContent != null) {
+      controller.currentContent?.draw(canvas, size, false);
     }
 
-    controller.currentContent?.draw(canvas, size, false);
+    // Draw rectangle outline with padding
+    final Paint paint = Paint()
+      ..color = Colors.black // Change this to your desired color
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    // Draw circle outline with padding
+    if (controller.currentContent is Circle) {
+      final Circle circleContent = controller.currentContent! as Circle;
+      final Rect rect = Rect.fromCircle(
+        center: circleContent.startPoint,
+        radius: circleContent.radius * 2,
+      );
+      canvas.drawRect(rect, paint);
+    } else {
+      final Rect rect =
+          controller.bounds!.inflate(10.0); // Use the bounds property
+      canvas.drawRect(rect, paint);
+    }
   }
 
   @override
@@ -167,49 +185,9 @@ class _DeepPainter extends CustomPainter {
       contents[i].draw(canvas, size, true);
     }
 
-    // Draw dotted outline rectangle at start and end points modified
-    final Paint paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final double startXMinus10 = controller.startPoint!.dx - 10;
-    final double startYPlus10 = controller.startPoint!.dy + 10;
-    final double endXPlus10 = controller.endPoint.dx + 10;
-    final double endYMinus10 = controller.endPoint.dy - 10;
-
-    final Path path = Path()
-      ..moveTo(startXMinus10, startYPlus10)
-      ..lineTo(endXPlus10, startYPlus10)
-      ..lineTo(endXPlus10, endYMinus10)
-      ..lineTo(startXMinus10, endYMinus10)
-      ..close();
-
-    final List<Offset> dashedPoints = _getDashedPoints(path);
-    for (int i = 0; i < dashedPoints.length - 1; i += 2) {
-      canvas.drawLine(dashedPoints[i], dashedPoints[i + 1], paint);
-    }
-
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant _DeepPainter oldDelegate) => false;
-
-  List<Offset> _getDashedPoints(Path path) {
-    final List<Offset> dashedPoints = [];
-    final PathMetric metric = path.computeMetrics().first;
-    double distance = 0.0;
-    while (distance < metric.length) {
-      final List<Offset> segment = (metric
-              .getTangentForOffset(distance)!
-              .position +
-          metric.getTangentForOffset(distance + 5)!.position) as List<Offset>;
-      dashedPoints.addAll(segment);
-      distance += 10; // Increase this value to adjust the dash length
-    }
-    return dashedPoints;
-  }
 }
