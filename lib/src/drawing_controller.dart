@@ -287,7 +287,7 @@ class DrawingController extends ChangeNotifier {
         startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
     _lastDrawnContent =
         currentContent; // Store the current content as the last drawn content
-    _refresh();
+    refresh();
   }
 
   /// 取消绘制
@@ -306,7 +306,7 @@ class DrawingController extends ChangeNotifier {
     } else {
       bounds = bounds!.expandToInclude(rect.inflate(10.0));
     }
-    _refresh();
+    refresh();
   }
 
   /// 结束绘制
@@ -330,7 +330,7 @@ class DrawingController extends ChangeNotifier {
       Offset(bounds!.right - 10, bounds!.bottom - 10),
     );
 
-    _refresh();
+    refresh();
     _refreshDeep();
     notifyListeners();
     _lastDrawnContent = currentContent;
@@ -399,7 +399,7 @@ class DrawingController extends ChangeNotifier {
   }
 
   /// 刷新表层画板
-  void _refresh() {
+  void refresh() {
     painter?._refresh();
   }
 
