@@ -160,6 +160,7 @@ class DrawingController extends ChangeNotifier {
 
   /// 底层绘制内容(绘制记录)
   late List<PaintContent> _history;
+  final ValueNotifier<String> textNotifier = ValueNotifier('');
 
   /// 当前controller是否存在
   bool _mounted = true;
