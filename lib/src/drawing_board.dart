@@ -9,9 +9,11 @@ import 'helper/get_size.dart';
 import 'paint_contents/circle.dart';
 import 'paint_contents/eraser.dart';
 import 'paint_contents/rectangle.dart';
+import 'paint_contents/ruler.dart';
 import 'paint_contents/simple_line.dart';
 import 'paint_contents/smooth_line.dart';
 import 'paint_contents/straight_line.dart';
+import 'paint_contents/text_paint.dart';
 import 'painter.dart';
 
 /// 默认工具栏构建器
@@ -110,16 +112,16 @@ class DrawingBoard extends StatefulWidget {
           onTap: () => controller.setPaintContent(StraightLine())),
       DefToolItem(
           isActive: currType == Rectangle,
-          icon: CupertinoIcons.stop,
-          onTap: () => controller.setPaintContent(Rectangle())),
+          icon: CupertinoIcons.pencil_ellipsis_rectangle,
+          onTap: () => controller.setPaintContent(TextPaint(controller))),
       DefToolItem(
           isActive: currType == Circle,
           icon: CupertinoIcons.circle,
           onTap: () => controller.setPaintContent(Circle())),
       DefToolItem(
           isActive: currType == Eraser,
-          icon: CupertinoIcons.bandage,
-          onTap: () => controller.setPaintContent(Eraser(color: Colors.white))),
+          icon: CupertinoIcons.arrow_down_right_square,
+          onTap: () => controller.setPaintContent(Ruler())),
     ];
   }
 

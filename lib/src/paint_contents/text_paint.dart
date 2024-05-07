@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../flutter_drawing_board.dart';
+import '../../paint_extension.dart';
+import 'paint_content.dart';
+
+class TextPaint extends PaintContent {
+  TextPaint(this._controller);
+
+  TextPaint.data({
+    required this.position,
+    required this.text,
+    required this.fontSize,
+    required this.textColor,
+    required Paint paint,
+  }) : super.paint(paint);
+
+  factory TextPaint.fromJson(Map<String, dynamic> data) {
+    final List<String> colorComponents = (data['color'] as String).split(',');
+    final int alpha = int.parse(colorComponents[0]);
+    final int red = int.parse(colorComponents[1]);
+    final int green = int.parse(colorComponents[2]);
+    final int blue = int.parse(colorComponents[3]);
+
+    return TextPaint.data(
+      position: jsonToOffset(data['position'] as Map<String, dynamic>),
+      text: data['text'] as String,
+      fontSize: data['fontSize'] as int,
+      textColor: Color(alpha << 24 | red << 16 | green << 8 | blue),
+      paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+    );
+  }
+  late DrawingController _controller;
+
+  static const int dashWidth = 4;
+  static const int dashSpace = 4;
+  late Canvas _canvas;
+  late Size _size;
+
+  Offset position = Offset.zero;
+  String text = '';
+  Color textColor = Colors.black;
+  int fontSize = 30;
+  @override
+  void startDraw(Offset startPoint) {
+    position = startPoint;
+    HardwareKeyboard.instance.addHandler(_handleKey);
+  }
+
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final LogicalKeyboardKey logicalKey = event.logicalKey;
+      if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
+        text += event.character!;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void drawing(Offset nowPoint) {
+    print('Canvas Drawing');
+  }
+
+  @override
+  void draw(Canvas canvas, Size size, bool deeper) {
+    //print("Canvas Draw");
+    _canvas = canvas;
+    _size = size;
+    _drawDashedLine(_canvas, _size, paint);
+  }
+
+  void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
+    final TextSpan textSpan = TextSpan(
+      text: text,
+      style: TextStyle(color: textColor, fontSize: fontSize.toDouble()),
+    );
+    final TextPainter textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    final Offset textPosition = Offset(
+      position.dx - textPainter.height / 2,
+      position.dy - textPainter.height / 2,
+    );
+    textPainter.paint(canvas, textPosition);
+  }
+
+  @override
+  TextPaint copy() => TextPaint(_controller);
+
+  @override
+  Map<String, dynamic> toContentJson() {
+    return <String, dynamic>{
+      'position': position.toJson(),
+      'text': text,
+      'fontSize': fontSize,
+      'color':
+          '${textColor.alpha},${textColor.red},${textColor.green},${textColor.blue}',
+      'paint': paint.toJson(),
+    };
+  }
+}
