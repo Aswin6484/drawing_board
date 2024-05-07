@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -164,6 +165,8 @@ class DrawingController extends ChangeNotifier {
 
   /// 当前controller是否存在
   bool _mounted = true;
+  PaintContent? _selectedContent;
+  PaintContent? get selectedContent => _selectedContent;
 
   /// 获取绘制图层/历史
   List<PaintContent> get getHistory => _history;
@@ -180,6 +183,9 @@ class DrawingController extends ChangeNotifier {
   /// 获取当前步骤索引
   int get currentIndex => _currentIndex;
 
+  PaintContent? draggingContent;
+  Offset? draggingOffset;
+
   /// 获取当前颜色
   Color get getColor => drawConfig.value.color;
 
@@ -191,7 +197,6 @@ class DrawingController extends ChangeNotifier {
 
   ui.Offset get endPoint => endPoint;
   Rect? bounds;
-  PaintContent? _lastDrawnContent;
   Rect? selectedRect;
 
   /// 设置画板大小
@@ -286,8 +291,7 @@ class DrawingController extends ChangeNotifier {
     currentContent?.startDraw(startPoint);
     bounds = Rect.fromLTRB(
         startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
-    _lastDrawnContent =
-        currentContent; // Store the current content as the last drawn content
+// Store the current content as the last drawn content
     refresh();
   }
 
@@ -334,7 +338,6 @@ class DrawingController extends ChangeNotifier {
     refresh();
     _refreshDeep();
     notifyListeners();
-    _lastDrawnContent = currentContent;
   }
 
   /// 撤销
@@ -342,6 +345,23 @@ class DrawingController extends ChangeNotifier {
     if (_currentIndex > 0) {
       _currentIndex = _currentIndex - 1;
       _refreshDeep();
+    }
+  }
+
+  void selectContent(PaintContent content) {
+    if (_selectedContent != null) {
+      _selectedContent!.isSelected = false;
+    }
+    _selectedContent = content;
+    _selectedContent!.isSelected = true;
+    notifyListeners();
+  }
+
+  void deselectContent() {
+    if (_selectedContent != null) {
+      _selectedContent!.isSelected = false;
+      _selectedContent = null;
+      notifyListeners();
     }
   }
 
@@ -370,6 +390,25 @@ class DrawingController extends ChangeNotifier {
       return true;
     } else {
       return false;
+    }
+  }
+
+  PaintContent? getContentAtPosition(Offset position) {
+    for (final PaintContent content in _history) {
+      if (content.containsContent(position)) {
+        return content;
+      }
+    }
+    return null;
+  }
+
+  void removePaintContentByTimestamp(DateTime timestamp) {
+    final int index = _history
+        .indexWhere((PaintContent content) => content.timestamp == timestamp);
+    if (index != -1) {
+      _history.removeAt(index);
+      _currentIndex = max(_currentIndex - 1, 0);
+      _refreshDeep();
     }
   }
 

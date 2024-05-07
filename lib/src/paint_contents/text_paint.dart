@@ -5,15 +5,19 @@ import '../../paint_extension.dart';
 import 'paint_content.dart';
 
 class TextPaint extends PaintContent {
-  TextPaint(this._controller);
+  TextPaint(this._controller, DateTime? timestamp)
+      : super(timestamp: timestamp ?? DateTime.now());
 
-  TextPaint.data({
-    required this.position,
-    required this.text,
-    required this.fontSize,
-    required this.textColor,
-    required Paint paint,
-  }) : super.paint(paint);
+  TextPaint.data(
+      {required this.position,
+      required this.text,
+      required this.fontSize,
+      required this.textColor,
+      required Paint paint,
+      DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory TextPaint.fromJson(Map<String, dynamic> data) {
     final List<String> colorComponents = (data['color'] as String).split(',');
@@ -28,6 +32,7 @@ class TextPaint extends PaintContent {
       fontSize: data['fontSize'] as int,
       textColor: Color(alpha << 24 | red << 16 | green << 8 | blue),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
   late DrawingController _controller;
@@ -89,7 +94,7 @@ class TextPaint extends PaintContent {
   }
 
   @override
-  TextPaint copy() => TextPaint(_controller);
+  TextPaint copy() => TextPaint(_controller, timestamp);
 
   @override
   Map<String, dynamic> toContentJson() {
@@ -100,6 +105,59 @@ class TextPaint extends PaintContent {
       'color':
           '${textColor.alpha},${textColor.red},${textColor.green},${textColor.blue}',
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
+  }
+
+  @override
+  bool containsContent(Offset offset) {
+    final TextSpan textSpan = TextSpan(
+      text: text,
+      style: TextStyle(color: textColor, fontSize: fontSize.toDouble()),
+    );
+    final TextPainter textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    final Rect textBounds = Rect.fromPoints(
+      Offset(
+        position.dx - textPainter.height / 2,
+        position.dy - textPainter.height / 2,
+      ),
+      Offset(
+        position.dx + textPainter.width + textPainter.height / 2,
+        position.dy + textPainter.height / 2,
+      ),
+    );
+
+    return textBounds.contains(offset);
+  }
+
+  @override
+  Rect get bounds {
+    final TextSpan textSpan = TextSpan(
+      text: text,
+      style: TextStyle(color: textColor, fontSize: fontSize.toDouble()),
+    );
+    final TextPainter textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    final Rect textBounds = Rect.fromPoints(
+      Offset(
+        position.dx - textPainter.height / 2,
+        position.dy - textPainter.height / 2,
+      ),
+      Offset(
+        position.dx + textPainter.width + textPainter.height / 2,
+        position.dy + textPainter.height / 2,
+      ),
+    );
+
+    return textBounds;
   }
 }

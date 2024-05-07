@@ -6,13 +6,17 @@ import 'paint_content.dart';
 
 /// 橡皮
 class Eraser extends PaintContent {
-  Eraser({this.color = const Color(0xff000000)});
+  Eraser({this.color = const Color(0xff000000), DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now());
 
   Eraser.data({
     required this.color,
     required this.drawPath,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory Eraser.fromJson(Map<String, dynamic> data) {
     return Eraser.data(
@@ -55,4 +59,14 @@ class Eraser extends PaintContent {
       'paint': paint.toJson(),
     };
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  Rect get bounds => throw UnimplementedError();
 }

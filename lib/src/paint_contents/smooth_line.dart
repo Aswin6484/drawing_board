@@ -5,17 +5,22 @@ import 'paint_content.dart';
 
 /// 笔触线条
 class SmoothLine extends PaintContent {
-  SmoothLine({
-    /// 绘制影响因子，值越小线条越平滑，粗细变化越慢
-    this.brushPrecision = 0.4,
-  });
+  SmoothLine(
+      {
+      /// 绘制影响因子，值越小线条越平滑，粗细变化越慢
+      this.brushPrecision = 0.4,
+      DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now());
 
   SmoothLine.data({
     this.brushPrecision = 0.4,
     required this.points,
     required this.strokeWidthList,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory SmoothLine.fromJson(Map<String, dynamic> data) {
     return SmoothLine.data(
@@ -27,6 +32,7 @@ class SmoothLine extends PaintContent {
           .map((dynamic e) => e as double)
           .toList(),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
 
@@ -94,6 +100,17 @@ class SmoothLine extends PaintContent {
       'points': points.map((Offset e) => e.toJson()).toList(),
       'strokeWidthList': strokeWidthList,
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  Rect get bounds => throw UnimplementedError();
 }

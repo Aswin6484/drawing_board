@@ -5,12 +5,17 @@ import 'package:flutter/widgets.dart';
 
 /// 绘制对象
 abstract class PaintContent {
-  PaintContent();
+  PaintContent({DateTime? timestamp}) : timestamp = timestamp ?? DateTime.now();
 
-  PaintContent.paint(this.paint);
+  PaintContent.paint(this.paint, this.timestamp);
+
+  final DateTime timestamp;
+  Offset position = Offset.zero;
 
   /// 画笔
   late Paint paint;
+
+  bool isSelected = false;
 
   /// 复制实例，避免对象传递
   PaintContent copy();
@@ -27,6 +32,9 @@ abstract class PaintContent {
   /// 开始绘制
   void startDraw(Offset startPoint);
 
+  bool containsContent(Offset offset);
+  Rect get bounds;
+
   /// toJson
   Map<String, dynamic> toContentJson();
 
@@ -34,6 +42,7 @@ abstract class PaintContent {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'type': runtimeType.toString(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
       ...toContentJson(),
     };
   }

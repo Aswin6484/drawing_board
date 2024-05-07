@@ -76,13 +76,16 @@ const Map<String, dynamic> _testLine2 = <String, dynamic>{
 class Triangle extends PaintContent {
   Triangle();
 
-  Triangle.data({
-    required this.startPoint,
-    required this.A,
-    required this.B,
-    required this.C,
-    required Paint paint,
-  }) : super.paint(paint);
+  Triangle.data(
+      {required this.startPoint,
+      required this.A,
+      required this.B,
+      required this.C,
+      required Paint paint,
+      DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory Triangle.fromJson(Map<String, dynamic> data) {
     return Triangle.data(
@@ -135,6 +138,16 @@ class Triangle extends PaintContent {
       'paint': paint.toJson(),
     };
   }
+
+  @override
+  bool containsContent(ui.Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  ui.Rect get bounds => throw UnimplementedError();
 }
 
 /// Custom drawn image
@@ -145,13 +158,16 @@ const String _imageUrl =
 class ImageContent extends PaintContent {
   ImageContent(this.image, {this.imageUrl = ''});
 
-  ImageContent.data({
-    required this.startPoint,
-    required this.size,
-    required this.image,
-    required this.imageUrl,
-    required Paint paint,
-  }) : super.paint(paint);
+  ImageContent.data(
+      {required this.startPoint,
+      required this.size,
+      required this.image,
+      required this.imageUrl,
+      required Paint paint,
+      DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory ImageContent.fromJson(Map<String, dynamic> data) {
     return ImageContent.data(
@@ -192,6 +208,16 @@ class ImageContent extends PaintContent {
       'paint': paint.toJson(),
     };
   }
+
+  @override
+  bool containsContent(ui.Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  ui.Rect get bounds => throw UnimplementedError();
 }
 
 void main() {

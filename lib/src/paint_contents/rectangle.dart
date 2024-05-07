@@ -6,19 +6,24 @@ import 'paint_content.dart';
 
 /// 矩形
 class Rectangle extends PaintContent {
-  Rectangle();
+  Rectangle({DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now());
 
   Rectangle.data({
     required this.startPoint,
     required this.endPoint,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory Rectangle.fromJson(Map<String, dynamic> data) {
     return Rectangle.data(
       startPoint: jsonToOffset(data['startPoint'] as Map<String, dynamic>),
       endPoint: jsonToOffset(data['endPoint'] as Map<String, dynamic>),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
 
@@ -52,6 +57,17 @@ class Rectangle extends PaintContent {
       'startPoint': startPoint?.toJson(),
       'endPoint': endPoint?.toJson(),
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  Rect get bounds => throw UnimplementedError();
 }

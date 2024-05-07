@@ -132,7 +132,7 @@ class Painter extends StatelessWidget {
 /// 表层画板
 class _UpPainter extends CustomPainter {
   _UpPainter({required this.controller}) : super(repaint: controller.painter);
-  final icon = Icons.close;
+
   final DrawingController controller;
   @override
   void paint(Canvas canvas, Size size) {
@@ -157,6 +157,20 @@ class _UpPainter extends CustomPainter {
       final Rect rect =
           controller.bounds!.inflate(10.0); // Use the bounds property
       canvas.drawRect(rect, paint);
+    }
+    for (final PaintContent content in controller.getHistory) {
+      if (content.isSelected) {
+        // Draw a rectangle around the selected paint content
+        final Rect rect = content.bounds.inflate(4.0);
+        canvas.drawRect(
+            rect,
+            Paint()
+              ..color = Colors.black
+              ..strokeWidth = 1.0
+              ..style = PaintingStyle.stroke);
+      }
+      // Draw the paint content
+      content.draw(canvas, size, false);
     }
   }
 
