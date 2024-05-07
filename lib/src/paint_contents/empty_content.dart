@@ -23,4 +23,14 @@ class EmptyContent extends PaintContent {
   Map<String, dynamic> toContentJson() {
     return <String, dynamic>{};
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    // TODO: implement containsContent
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  Rect get bounds => throw UnimplementedError();
 }

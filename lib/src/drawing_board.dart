@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../paint_contents.dart';
 import 'drawing_controller.dart';
 
 import 'helper/ex_value_builder.dart';
@@ -113,13 +114,14 @@ class DrawingBoard extends StatefulWidget {
       DefToolItem(
           isActive: currType == Rectangle,
           icon: CupertinoIcons.pencil_ellipsis_rectangle,
-          onTap: () => controller.setPaintContent(TextPaint(controller))),
+          onTap: () => controller
+              .setPaintContent(TextPaint(controller, DateTime.now()))),
       DefToolItem(
           isActive: currType == Circle,
           icon: CupertinoIcons.circle,
           onTap: () => controller.setPaintContent(Circle())),
       DefToolItem(
-          isActive: currType == Eraser,
+          isActive: currType == null,
           icon: CupertinoIcons.arrow_down_right_square,
           onTap: () => controller.setPaintContent(Ruler())),
     ];
@@ -244,11 +246,55 @@ class _DrawingBoardState extends State<DrawingBoard> {
           child: child,
         );
       },
-      child: Painter(
-        drawingController: _controller,
-        onPointerDown: widget.onPointerDown,
-        onPointerMove: widget.onPointerMove,
-        onPointerUp: widget.onPointerUp,
+      child: GestureDetector(
+        onDoubleTapDown: (TapDownDetails details) {
+          final PaintContent? content =
+              _controller.getContentAtPosition(details.localPosition);
+          if (content != null) {
+            _controller.removePaintContentByTimestamp(content.timestamp);
+          }
+        },
+        onTapDown: (TapDownDetails details) {
+          final PaintContent? content =
+              _controller.getContentAtPosition(details.localPosition);
+          if (content != null) {
+            _controller.selectContent(content);
+          } else {
+            _controller.deselectContent();
+          }
+        },
+        onLongPressStart: (LongPressStartDetails details) {
+          final Offset touchPosition = details.localPosition;
+          final PaintContent? content =
+              _controller.getContentAtPosition(details.localPosition);
+          if (content != null) {
+            setState(() {
+              _controller.draggingContent = content;
+              _controller.draggingOffset = touchPosition - content.position;
+            });
+          }
+        },
+        onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
+          setState(() {
+            if (_controller.draggingContent != null &&
+                _controller.draggingOffset != null) {
+              _controller.draggingContent!.position =
+                  details.localPosition - _controller.draggingOffset!;
+            }
+          });
+        },
+        onLongPressEnd: (LongPressEndDetails details) {
+          setState(() {
+            _controller.draggingContent = null;
+            _controller.draggingOffset = null;
+          });
+        },
+        child: Painter(
+          drawingController: _controller,
+          onPointerDown: widget.onPointerDown,
+          onPointerMove: widget.onPointerMove,
+          onPointerUp: widget.onPointerUp,
+        ),
       ),
     );
   }

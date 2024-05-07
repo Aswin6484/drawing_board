@@ -6,17 +6,22 @@ import 'paint_content.dart';
 
 /// 普通自由线条
 class SimpleLine extends PaintContent {
-  SimpleLine();
+  SimpleLine({DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now());
 
   SimpleLine.data({
     required this.path,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory SimpleLine.fromJson(Map<String, dynamic> data) {
     return SimpleLine.data(
       path: DrawPath.fromJson(data['path'] as Map<String, dynamic>),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
 
@@ -42,6 +47,16 @@ class SimpleLine extends PaintContent {
     return <String, dynamic>{
       'path': path.toJson(),
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bounds
+  Rect get bounds => throw UnimplementedError();
 }

@@ -6,19 +6,23 @@ import '../../paint_contents.dart';
 import '../../paint_extension.dart';
 
 class Ruler extends PaintContent {
-  Ruler();
+  Ruler({DateTime? timestamp}) : super(timestamp: timestamp ?? DateTime.now());
 
   Ruler.data({
     required this.startPoint,
     required this.endPoint,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory Ruler.fromJson(Map<String, dynamic> data) {
     return Ruler.data(
       startPoint: jsonToOffset(data['startPoint'] as Map<String, dynamic>),
       endPoint: jsonToOffset(data['endPoint'] as Map<String, dynamic>),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
 
@@ -112,6 +116,46 @@ class Ruler extends PaintContent {
       'startPoint': startPoint.toJson(),
       'endPoint': endPoint.toJson(),
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
+  }
+
+  @override
+  bool containsContent(Offset offset) {
+    final double dx = endPoint.dx - startPoint.dx;
+    final double dy = endPoint.dy - startPoint.dy;
+
+    // Calculate the distance from the start point to the given offset
+    final double t =
+        ((offset.dx - startPoint.dx) * dx + (offset.dy - startPoint.dy) * dy) /
+            (dx * dx + dy * dy);
+
+    // Check if the given offset is on the line segment
+    if (t < 0 || t > 1) {
+      return false;
+    }
+
+    // Calculate the distance from the start point to the projected point
+    final double distance = (offset.dx - startPoint.dx - t * dx) *
+            (offset.dx - startPoint.dx - t * dx) +
+        (offset.dy - startPoint.dy - t * dy) *
+            (offset.dy - startPoint.dy - t * dy);
+
+    // Check if the distance is within a small tolerance (e.g., 1 pixel)
+    return distance < 1;
+  }
+
+  @override
+  Rect get bounds {
+    final double left =
+        startPoint.dx < endPoint.dx ? startPoint.dx : endPoint.dx;
+    final double top =
+        startPoint.dy < endPoint.dy ? startPoint.dy : endPoint.dy;
+    final double right =
+        startPoint.dx > endPoint.dx ? startPoint.dx : endPoint.dx;
+    final double bottom =
+        startPoint.dy > endPoint.dy ? startPoint.dy : endPoint.dy;
+
+    return Rect.fromLTRB(left, top, right, bottom);
   }
 }

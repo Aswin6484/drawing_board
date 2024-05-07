@@ -6,20 +6,24 @@ import 'paint_content.dart';
 
 /// 圆
 class Circle extends PaintContent {
-  Circle({
-    this.isEllipse = false,
-    this.startFromCenter = true,
-  });
+  Circle(
+      {this.isEllipse = false,
+      this.startFromCenter = true,
+      DateTime? timestamp})
+      : super(timestamp: timestamp ?? DateTime.now());
 
   Circle.data({
-    this.isEllipse = false,
+    this.isEllipse = true,
     this.startFromCenter = true,
     required this.center,
     required this.radius,
     required this.startPoint,
     required this.endPoint,
     required Paint paint,
-  }) : super.paint(paint);
+    DateTime? timestamp,
+  }) : super(timestamp: timestamp ?? DateTime.now()) {
+    this.paint = paint;
+  }
 
   factory Circle.fromJson(Map<String, dynamic> data) {
     return Circle.data(
@@ -30,6 +34,7 @@ class Circle extends PaintContent {
       startPoint: jsonToOffset(data['startPoint'] as Map<String, dynamic>),
       endPoint: jsonToOffset(data['endPoint'] as Map<String, dynamic>),
       paint: jsonToPaint(data['paint'] as Map<String, dynamic>),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
 
@@ -87,6 +92,23 @@ class Circle extends PaintContent {
       'startPoint': startPoint.toJson(),
       'endPoint': endPoint.toJson(),
       'paint': paint.toJson(),
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
   }
+
+  @override
+  bool containsContent(Offset offset) {
+    if (radius == 0) {
+      return false;
+    }
+
+    // Calculate the distance from the center to the given offset
+    final double distance = (offset - center).distance;
+
+    // Check if the distance is within the radius
+    return distance <= radius;
+  }
+
+  @override
+  Rect get bounds => Rect.fromCircle(center: center, radius: radius);
 }
