@@ -60,7 +60,7 @@ class StraightLine extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
-    const double toleranceRadius = 15.0;
+    const double toleranceRadius = 3.0;
     if (startPoint == null || endPoint == null) {
       return false;
     }

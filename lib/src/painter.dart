@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import '../paint_contents.dart';
 import 'drawing_controller.dart';
 import 'helper/ex_value_builder.dart';
@@ -109,6 +106,16 @@ class Painter extends StatelessWidget {
             onPanUpdate: config.fingerCount <= 1 ? _onPanUpdate : null,
             onPanEnd: config.fingerCount <= 1 ? _onPanEnd : null,
             child: child,
+            onTapDown: (TapDownDetails details) {
+              final PaintContent? content = drawingController.selectedContent;
+              if (content != null) {
+                if (_UpPainter(controller: drawingController)
+                    .isClickInCloseButton(details.localPosition)) {
+                  drawingController
+                      .removePaintContentByTimestamp(content.timestamp);
+                }
+              }
+            },
           );
         },
         child: ClipRect(
@@ -134,44 +141,96 @@ class _UpPainter extends CustomPainter {
   _UpPainter({required this.controller}) : super(repaint: controller.painter);
 
   final DrawingController controller;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (controller.currentContent != null) {
       controller.currentContent?.draw(canvas, size, false);
     }
-
-    // Draw rectangle outline with padding
-    final Paint paint = Paint()
-      ..color = Colors.black // Change this to your desired color
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-    // Draw circle outline with padding
-    if (controller.currentContent is Circle) {
-      final Circle circleContent = controller.currentContent! as Circle;
-      final Rect rect = Rect.fromCircle(
-        center: circleContent.startPoint,
-        radius: circleContent.radius * 2,
-      );
-      canvas.drawRect(rect, paint);
-    } else {
-      final Rect rect =
-          controller.bounds!.inflate(10.0); // Use the bounds property
-      canvas.drawRect(rect, paint);
-    }
     for (final PaintContent content in controller.getHistory) {
+      Rect rect;
       if (content.isSelected) {
+        if (content is Circle) {
+          final Circle circleContent = content;
+          final double width =
+              (circleContent.endPoint.dx - circleContent.startPoint.dx).abs();
+          final double height =
+              (circleContent.endPoint.dy - circleContent.startPoint.dy).abs();
+          rect = Rect.fromCenter(
+                  center: circleContent.center, width: width, height: height)
+              .inflate(4.0);
+        } else {
+          rect = content.bounds.inflate(4.0);
+        }
+
         // Draw a rectangle around the selected paint content
-        final Rect rect = content.bounds.inflate(4.0);
         canvas.drawRect(
             rect,
             Paint()
-              ..color = Colors.black
+              ..color = const Color.fromARGB(255, 148, 145, 145)
               ..strokeWidth = 1.0
               ..style = PaintingStyle.stroke);
+
+        // Calculate position for close icon
+        const double iconSize = 10.0;
+        const double padding = 4.0;
+        final Offset closeIconPosition = Offset(
+          rect.right + padding,
+          rect.top - padding - iconSize,
+        );
+        _drawCloseIcon(canvas, closeIconPosition, iconSize);
       }
+
       // Draw the paint content
       content.draw(canvas, size, false);
     }
+  }
+
+  void _drawCloseIcon(Canvas canvas, Offset position, double size) {
+    final Paint paint = Paint()
+      ..color = Colors.black // Change this to your desired color
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(
+      position,
+      position.translate(size, size),
+      paint,
+    );
+    canvas.drawLine(
+      position.translate(size, 0),
+      position.translate(0, size),
+      paint,
+    );
+    canvas.drawRect(
+      Rect.fromCircle(
+          center: position.translate(size / 2, size / 2), radius: size / 2),
+      Paint()..color = Colors.transparent, // Invisible rectangle to detect taps
+    );
+  }
+
+  bool isClickInCloseButton(Offset clickPosition) {
+    const double iconSize = 40.0;
+    const double padding = 4.0;
+
+    Rect rect;
+    if (controller.selectedContent is Circle) {
+      final Circle circleContent = controller.selectedContent! as Circle;
+      final double width =
+          (circleContent.endPoint.dx - circleContent.startPoint.dx).abs();
+      final double height =
+          (circleContent.endPoint.dy - circleContent.startPoint.dy).abs();
+      rect = Rect.fromCenter(
+              center: circleContent.center, width: width, height: height)
+          .inflate(4.0);
+    } else {
+      rect = controller.selectedContent!.bounds.inflate(4.0);
+    }
+
+    return clickPosition.dx >= rect.right + padding &&
+        clickPosition.dx <= rect.right + padding + iconSize &&
+        clickPosition.dy >= rect.top - padding - iconSize &&
+        clickPosition.dy <= rect.top - padding;
   }
 
   @override

@@ -26,8 +26,7 @@ class EmptyContent extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
-    // TODO: implement containsContent
-    throw UnimplementedError();
+    return false;
   }
 
   @override

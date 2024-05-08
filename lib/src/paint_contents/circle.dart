@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
@@ -7,9 +9,7 @@ import 'paint_content.dart';
 /// 圆
 class Circle extends PaintContent {
   Circle(
-      {this.isEllipse = false,
-      this.startFromCenter = true,
-      DateTime? timestamp})
+      {this.isEllipse = true, this.startFromCenter = true, DateTime? timestamp})
       : super(timestamp: timestamp ?? DateTime.now());
 
   Circle.data({
@@ -98,15 +98,25 @@ class Circle extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
+    const double factor = 3;
     if (radius == 0) {
       return false;
     }
 
-    // Calculate the distance from the center to the given offset
-    final double distance = (offset - center).distance;
+    // Calculate the width and height of the oval
+    final double width = (endPoint.dx - startPoint.dx).abs();
+    final double height = (endPoint.dy - startPoint.dy).abs();
 
-    // Check if the distance is within the radius
-    return distance <= radius;
+    // Calculate the semi-major and semi-minor axes
+    final double a = max(width, height) / 2;
+    final double b = min(width, height) / 2;
+
+    // Calculate the normalized coordinates of the offset
+    final double x = (offset.dx - center.dx) / a;
+    final double y = (offset.dy - center.dy) / b;
+
+    // Check if the offset is within the oval
+    return x * x + y * y <= factor * factor;
   }
 
   @override
