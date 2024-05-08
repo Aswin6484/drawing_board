@@ -247,13 +247,6 @@ class _DrawingBoardState extends State<DrawingBoard> {
         );
       },
       child: GestureDetector(
-        onDoubleTapDown: (TapDownDetails details) {
-          final PaintContent? content =
-              _controller.getContentAtPosition(details.localPosition);
-          if (content != null) {
-            _controller.removePaintContentByTimestamp(content.timestamp);
-          }
-        },
         onTapDown: (TapDownDetails details) {
           final PaintContent? content =
               _controller.getContentAtPosition(details.localPosition);

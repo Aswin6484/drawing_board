@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import '../paint_contents.dart';
 import 'helper/safe_value_notifier.dart';
 import 'paint_contents/paint_content.dart';
 import 'paint_contents/simple_line.dart';
@@ -396,6 +397,7 @@ class DrawingController extends ChangeNotifier {
   PaintContent? getContentAtPosition(Offset position) {
     for (final PaintContent content in _history) {
       if (content.containsContent(position)) {
+        setPaintContent(EmptyContent());
         return content;
       }
     }
