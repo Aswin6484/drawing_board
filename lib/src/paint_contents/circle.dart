@@ -57,6 +57,17 @@ class Circle extends PaintContent {
   Offset endPoint = Offset.zero;
 
   @override
+  Offset getAnchorPoint() => center;
+
+  @override
+  void updatePosition(Offset newPosition) {
+    final Offset delta = newPosition - center;
+    startPoint += delta;
+    endPoint += delta;
+    center = newPosition;
+  }
+
+  @override
   void startDraw(Offset startPoint) {
     this.startPoint = startPoint;
     center = startPoint;
@@ -98,7 +109,7 @@ class Circle extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
-    const double factor = 3;
+    const double factor = 1;
     if (radius == 0) {
       return false;
     }

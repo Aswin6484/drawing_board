@@ -33,6 +33,8 @@ abstract class PaintContent {
   void startDraw(Offset startPoint);
 
   bool containsContent(Offset offset);
+  Offset? getAnchorPoint();
+  void updatePosition(Offset newPosition);
   Rect get bounds;
 
   /// toJson

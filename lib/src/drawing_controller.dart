@@ -1,13 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import '../paint_contents.dart';
 import 'helper/safe_value_notifier.dart';
-import 'paint_contents/paint_content.dart';
-import 'paint_contents/simple_line.dart';
 
 /// 绘制参数
 class DrawConfig {
@@ -132,6 +130,8 @@ class DrawConfig {
   }
 }
 
+enum DrawingBoardStates { DrawingState, SelectionState }
+
 /// 绘制控制器
 class DrawingController extends ChangeNotifier {
   DrawingController({DrawConfig? config, PaintContent? content}) {
@@ -142,8 +142,9 @@ class DrawingController extends ChangeNotifier {
     drawConfig = SafeValueNotifier<DrawConfig>(
         config ?? DrawConfig.def(contentType: SimpleLine));
     setPaintContent(content ?? SimpleLine());
-    bounds = Rect.fromLTRB(0, 0, 10, 10);
+    bounds = const Rect.fromLTRB(0, 0, 10, 10);
   }
+  DrawingBoardStates drawingBoardStates = DrawingBoardStates.DrawingState;
 
   /// 绘制开始点
   Offset? _startPoint;
@@ -293,7 +294,6 @@ class DrawingController extends ChangeNotifier {
     bounds = Rect.fromLTRB(
         startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
 // Store the current content as the last drawn content
-    refresh();
   }
 
   /// 取消绘制

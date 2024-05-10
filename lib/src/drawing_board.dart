@@ -7,13 +7,7 @@ import 'drawing_controller.dart';
 
 import 'helper/ex_value_builder.dart';
 import 'helper/get_size.dart';
-import 'paint_contents/circle.dart';
-import 'paint_contents/eraser.dart';
-import 'paint_contents/rectangle.dart';
 import 'paint_contents/ruler.dart';
-import 'paint_contents/simple_line.dart';
-import 'paint_contents/smooth_line.dart';
-import 'paint_contents/straight_line.dart';
 import 'paint_contents/text_paint.dart';
 import 'painter.dart';
 
@@ -247,15 +241,6 @@ class _DrawingBoardState extends State<DrawingBoard> {
         );
       },
       child: GestureDetector(
-        onTapDown: (TapDownDetails details) {
-          final PaintContent? content =
-              _controller.getContentAtPosition(details.localPosition);
-          if (content != null) {
-            _controller.selectContent(content);
-          } else {
-            _controller.deselectContent();
-          }
-        },
         onLongPressStart: (LongPressStartDetails details) {
           final Offset touchPosition = details.localPosition;
           final PaintContent? content =
@@ -263,7 +248,8 @@ class _DrawingBoardState extends State<DrawingBoard> {
           if (content != null) {
             setState(() {
               _controller.draggingContent = content;
-              _controller.draggingOffset = touchPosition - content.position;
+              _controller.draggingOffset =
+                  touchPosition - content.getAnchorPoint()!;
             });
           }
         },
@@ -271,8 +257,9 @@ class _DrawingBoardState extends State<DrawingBoard> {
           setState(() {
             if (_controller.draggingContent != null &&
                 _controller.draggingOffset != null) {
-              _controller.draggingContent!.position =
+              final Offset newPosition =
                   details.localPosition - _controller.draggingOffset!;
+              _controller.draggingContent!.updatePosition(newPosition);
             }
           });
         },
