@@ -7,6 +7,7 @@ import 'drawing_controller.dart';
 
 import 'helper/ex_value_builder.dart';
 import 'helper/get_size.dart';
+import 'paint_contents/arrow.dart';
 import 'paint_contents/ruler.dart';
 import 'paint_contents/text_paint.dart';
 import 'painter.dart';
@@ -100,7 +101,7 @@ class DrawingBoard extends StatefulWidget {
       DefToolItem(
           isActive: currType == SmoothLine,
           icon: Icons.brush,
-          onTap: () => controller.setPaintContent(SmoothLine())),
+          onTap: () => controller.setPaintContent(Arrow())),
       DefToolItem(
           isActive: currType == StraightLine,
           icon: Icons.show_chart,
