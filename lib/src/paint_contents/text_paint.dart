@@ -46,6 +46,15 @@ class TextPaint extends PaintContent {
   String text = '';
   Color textColor = Colors.black;
   int fontSize = 30;
+
+  @override
+  Offset getAnchorPoint() => position;
+
+  @override
+  void updatePosition(Offset newPosition) {
+    position = newPosition;
+  }
+
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;

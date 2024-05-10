@@ -69,4 +69,15 @@ class Eraser extends PaintContent {
   @override
   // TODO: implement bounds
   Rect get bounds => throw UnimplementedError();
+
+  @override
+  void updatePosition(Offset newPosition) {
+    // TODO: implement updatePosition
+  }
+
+  @override
+  Offset getAnchorPoint() {
+    // TODO: implement getAnchorPoint
+    throw UnimplementedError();
+  }
 }

@@ -32,6 +32,14 @@ class Ruler extends PaintContent {
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
 
+  Offset getAnchorPoint() => startPoint;
+
+  void updatePosition(Offset newPosition) {
+    final Offset delta = newPosition - startPoint;
+    startPoint = newPosition;
+    endPoint = endPoint + delta;
+  }
+
   @override
   void startDraw(Offset startPoint) => this.startPoint = startPoint;
 
@@ -122,6 +130,7 @@ class Ruler extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
+    const double toleranceRadius = 20.0;
     final double dx = endPoint.dx - startPoint.dx;
     final double dy = endPoint.dy - startPoint.dy;
 
@@ -131,7 +140,7 @@ class Ruler extends PaintContent {
             (dx * dx + dy * dy);
 
     // Check if the given offset is on the line segment
-    if (t < 0 || t > 1) {
+    if (t < 0 || t > toleranceRadius) {
       return false;
     }
 
@@ -142,7 +151,7 @@ class Ruler extends PaintContent {
             (offset.dy - startPoint.dy - t * dy);
 
     // Check if the distance is within a small tolerance (e.g., 1 pixel)
-    return distance < 1;
+    return distance < toleranceRadius;
   }
 
   @override

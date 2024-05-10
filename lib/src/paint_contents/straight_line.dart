@@ -29,6 +29,17 @@ class StraightLine extends PaintContent {
 
   Offset? startPoint;
   Offset? endPoint;
+  @override
+  Offset? getAnchorPoint() => startPoint;
+
+  @override
+  void updatePosition(Offset newPosition) {
+    final Offset delta = newPosition - startPoint!;
+    startPoint = newPosition;
+    if (endPoint != null) {
+      endPoint = endPoint! + delta;
+    }
+  }
 
   @override
   void startDraw(Offset startPoint) => this.startPoint = startPoint;
@@ -60,7 +71,7 @@ class StraightLine extends PaintContent {
 
   @override
   bool containsContent(Offset offset) {
-    const double toleranceRadius = 3.0;
+    const double toleranceRadius = 20.0;
     if (startPoint == null || endPoint == null) {
       return false;
     }
@@ -75,7 +86,7 @@ class StraightLine extends PaintContent {
         (dx * dx + dy * dy);
 
     // Check if the given offset is on the line segment
-    if (t < 0 || t > 1) {
+    if (t < 0 || t > toleranceRadius) {
       return false;
     }
     // Calculate the distance from the start point to the projected point

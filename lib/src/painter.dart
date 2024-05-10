@@ -32,6 +32,28 @@ class Painter extends StatelessWidget {
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
+    PaintContent? content = drawingController.selectedContent;
+    if (content != null) {
+      if (_UpPainter(controller: drawingController)
+          .isClickInCloseButton(pde.localPosition)) {
+        drawingController.removePaintContentByTimestamp(content.timestamp);
+        drawingController.deselectContent();
+      } else {
+        content = drawingController.getContentAtPosition(pde.localPosition);
+        if (content != null) {
+          drawingController.selectContent(content);
+        } else {
+          drawingController.deselectContent();
+        }
+      }
+    } else {
+      content = drawingController.getContentAtPosition(pde.localPosition);
+      if (content != null) {
+        drawingController.selectContent(content);
+      } else {
+        drawingController.deselectContent();
+      }
+    }
     if (!drawingController.couldDraw) {
       return;
     }
@@ -106,16 +128,7 @@ class Painter extends StatelessWidget {
             onPanUpdate: config.fingerCount <= 1 ? _onPanUpdate : null,
             onPanEnd: config.fingerCount <= 1 ? _onPanEnd : null,
             child: child,
-            onTapDown: (TapDownDetails details) {
-              final PaintContent? content = drawingController.selectedContent;
-              if (content != null) {
-                if (_UpPainter(controller: drawingController)
-                    .isClickInCloseButton(details.localPosition)) {
-                  drawingController
-                      .removePaintContentByTimestamp(content.timestamp);
-                }
-              }
-            },
+            onTapDown: (TapDownDetails details) {},
           );
         },
         child: ClipRect(
@@ -180,7 +193,6 @@ class _UpPainter extends CustomPainter {
         );
         _drawCloseIcon(canvas, closeIconPosition, iconSize);
       }
-
       // Draw the paint content
       content.draw(canvas, size, false);
     }

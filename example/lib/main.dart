@@ -148,6 +148,17 @@ class Triangle extends PaintContent {
   @override
   // TODO: implement bounds
   ui.Rect get bounds => throw UnimplementedError();
+
+  @override
+  ui.Offset? getAnchorPoint() {
+    // TODO: implement getAnchorPoint
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatePosition(ui.Offset newPosition) {
+    // TODO: implement updatePosition
+  }
 }
 
 /// Custom drawn image
@@ -218,6 +229,17 @@ class ImageContent extends PaintContent {
   @override
   // TODO: implement bounds
   ui.Rect get bounds => throw UnimplementedError();
+
+  @override
+  ui.Offset? getAnchorPoint() {
+    // TODO: implement getAnchorPoint
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatePosition(ui.Offset newPosition) {
+    // TODO: implement updatePosition
+  }
 }
 
 void main() {
@@ -253,7 +275,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   /// 绘制控制器
-  final DrawingController _drawingController = DrawingController();
+  final DrawingController _drawingController = DrawingController()
+    ..setStyle(isAntiAlias: true);
 
   final TransformationController _transformationController =
       TransformationController();
