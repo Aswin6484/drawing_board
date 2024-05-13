@@ -41,11 +41,14 @@ class TextPaint extends PaintContent {
   static const int dashSpace = 4;
   late Canvas _canvas;
   late Size _size;
+  int curserTimer = 0;
 
   Offset position = Offset.zero;
   String text = '';
+  String uiText = '';
   Color textColor = Colors.black;
   int fontSize = 30;
+  bool isPipe = true;
 
   @override
   Offset getAnchorPoint() => position;
@@ -82,12 +85,16 @@ class TextPaint extends PaintContent {
     //print("Canvas Draw");
     _canvas = canvas;
     _size = size;
+    uiText = text;
+    if (isPipe && timestamp == PaintContent.selectedTimestamp) {
+      uiText += '|';
+    }
     _drawDashedLine(_canvas, _size, paint);
   }
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
     final TextSpan textSpan = TextSpan(
-      text: text,
+      text: uiText,
       style: TextStyle(color: textColor, fontSize: fontSize.toDouble()),
     );
     final TextPainter textPainter = TextPainter(
@@ -178,7 +185,11 @@ class TextPaint extends PaintContent {
   void updateUI() {
     if (timestamp == PaintContent.selectedTimestamp) {
       updateText(DrawingController.text);
-      print("Inside UI " + text);
+      curserTimer += 1;
+      if (curserTimer == 3) {
+        curserTimer = 0;
+        isPipe = !isPipe;
+      }
     }
   }
 }

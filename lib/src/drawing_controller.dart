@@ -274,15 +274,15 @@ class DrawingController extends ChangeNotifier {
 
     callBack = content.updateUI;
 
+    if (isHandlerAdded) {
+      HardwareKeyboard.instance.removeHandler(_handleKey);
+      isHandlerAdded = false;
+    }
+
     if (content.runtimeType == TextPaint) {
       text = (content as TextPaint).text;
       isHandlerAdded = true;
       HardwareKeyboard.instance.addHandler(_handleKey);
-    } else {
-      if (isHandlerAdded) {
-        HardwareKeyboard.instance.removeHandler(_handleKey);
-        isHandlerAdded = false;
-      }
     }
   }
 
@@ -414,16 +414,17 @@ class DrawingController extends ChangeNotifier {
     _selectedContent = content;
     PaintContent.selectedTimestamp = content.timestamp;
     callBack = content.updateUI;
+    if (isHandlerAdded) {
+      HardwareKeyboard.instance.removeHandler(_handleKey);
+      isHandlerAdded = false;
+    }
+
     if (content.runtimeType == TextPaint) {
       text = (content as TextPaint).text;
       isHandlerAdded = true;
       HardwareKeyboard.instance.addHandler(_handleKey);
-    } else {
-      if (isHandlerAdded) {
-        HardwareKeyboard.instance.removeHandler(_handleKey);
-        isHandlerAdded = false;
-      }
     }
+
     _selectedContent!.isSelected = true;
     notifyListeners();
   }
