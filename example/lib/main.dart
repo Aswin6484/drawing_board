@@ -142,7 +142,8 @@ class Triangle extends PaintContent {
   @override
   bool containsContent(ui.Offset offset) {
     // TODO: implement containsContent
-    throw UnimplementedError();
+    // throw UnimplementedError();
+    return false;
   }
 
   @override
@@ -158,6 +159,11 @@ class Triangle extends PaintContent {
   @override
   void updatePosition(ui.Offset newPosition) {
     // TODO: implement updatePosition
+  }
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
   }
 }
 
@@ -239,6 +245,11 @@ class ImageContent extends PaintContent {
   @override
   void updatePosition(ui.Offset newPosition) {
     // TODO: implement updatePosition
+  }
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
   }
 }
 

@@ -107,7 +107,7 @@ class DrawingBoard extends StatefulWidget {
           icon: Icons.show_chart,
           onTap: () => controller.setPaintContent(StraightLine())),
       DefToolItem(
-          isActive: currType == Rectangle,
+          isActive: currType == TextPaint,
           icon: CupertinoIcons.pencil_ellipsis_rectangle,
           onTap: () => controller
               .setPaintContent(TextPaint(controller, DateTime.now()))),
@@ -141,10 +141,20 @@ class _DrawingBoardState extends State<DrawingBoard> {
       widget.controller ?? DrawingController();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _controller.runTimer();
+  }
+
+  @override
   void dispose() {
     if (widget.controller == null) {
+      _controller.cancelTimer();
       _controller.dispose();
     }
+
     super.dispose();
   }
 

@@ -58,19 +58,19 @@ class TextPaint extends PaintContent {
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;
-    HardwareKeyboard.instance.addHandler(_handleKey);
+    // HardwareKeyboard.instance.addHandler(_handleKey);
   }
 
-  bool _handleKey(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      final LogicalKeyboardKey logicalKey = event.logicalKey;
-      if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
-        text += event.character!;
-        return true;
-      }
-    }
-    return false;
-  }
+  // bool _handleKey(KeyEvent event) {
+  //   if (event is KeyDownEvent) {
+  //     final LogicalKeyboardKey logicalKey = event.logicalKey;
+  //     if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
+  //       text += event.character!;
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   @override
   void drawing(Offset nowPoint) {
@@ -168,5 +168,17 @@ class TextPaint extends PaintContent {
     );
 
     return textBounds;
+  }
+
+  void updateText(String updatedText) {
+    text = updatedText;
+  }
+
+  @override
+  void updateUI() {
+    if (timestamp == PaintContent.selectedTimestamp) {
+      updateText(DrawingController.text);
+      print("Inside UI " + text);
+    }
   }
 }

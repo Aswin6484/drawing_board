@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -203,6 +204,11 @@ class DrawingController extends ChangeNotifier {
   Rect? bounds;
   Rect? selectedRect;
 
+  Timer? _timer;
+  Function? callBack;
+  static String text = "";
+  bool isHandlerAdded = false;
+
   /// 设置画板大小
   void setBoardSize(Size? size) {
     drawConfig.value = drawConfig.value.copyWith(size: size);
@@ -262,8 +268,39 @@ class DrawingController extends ChangeNotifier {
   void setPaintContent(PaintContent content) {
     content.paint = drawConfig.value.paint;
     _paintContent = content;
+    PaintContent.selectedTimestamp = content.timestamp;
     drawConfig.value =
         drawConfig.value.copyWith(contentType: content.runtimeType);
+
+    callBack = content.updateUI;
+
+    if (content.runtimeType == TextPaint) {
+      text = (content as TextPaint).text;
+      isHandlerAdded = true;
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    } else {
+      if (isHandlerAdded) {
+        HardwareKeyboard.instance.removeHandler(_handleKey);
+        isHandlerAdded = false;
+      }
+    }
+  }
+
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final LogicalKeyboardKey logicalKey = event.logicalKey;
+      if (logicalKey == LogicalKeyboardKey.enter) {
+        text += '\n';
+        return true;
+      } else if (logicalKey == LogicalKeyboardKey.backspace) {
+        text = text.substring(0, text.length - 1);
+        return true;
+      } else if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
+        text += event.character!;
+        return true;
+      }
+    }
+    return false;
   }
 
   /// 添加一条绘制数据
@@ -271,6 +308,25 @@ class DrawingController extends ChangeNotifier {
     _history.add(content);
     _currentIndex++;
     _refreshDeep();
+  }
+
+  void runTimer() {
+    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      print("Inside timer");
+      for (final scene in _history) {
+        if (scene.timestamp == PaintContent.selectedTimestamp) {
+          callBack = scene.updateUI;
+          callBack!.call();
+          refresh();
+        }
+      }
+      refresh();
+      _refreshDeep();
+    });
+  }
+
+  void cancelTimer() {
+    _timer?.cancel();
   }
 
   /// 添加多条数据
@@ -356,6 +412,18 @@ class DrawingController extends ChangeNotifier {
       _selectedContent!.isSelected = false;
     }
     _selectedContent = content;
+    PaintContent.selectedTimestamp = content.timestamp;
+    callBack = content.updateUI;
+    if (content.runtimeType == TextPaint) {
+      text = (content as TextPaint).text;
+      isHandlerAdded = true;
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    } else {
+      if (isHandlerAdded) {
+        HardwareKeyboard.instance.removeHandler(_handleKey);
+        isHandlerAdded = false;
+      }
+    }
     _selectedContent!.isSelected = true;
     notifyListeners();
   }
@@ -364,6 +432,13 @@ class DrawingController extends ChangeNotifier {
     if (_selectedContent != null) {
       _selectedContent!.isSelected = false;
       _selectedContent = null;
+      PaintContent.selectedTimestamp = null;
+      callBack = null;
+
+      if (isHandlerAdded) {
+        HardwareKeyboard.instance.removeHandler(_handleKey);
+        isHandlerAdded = false;
+      }
       notifyListeners();
     }
   }

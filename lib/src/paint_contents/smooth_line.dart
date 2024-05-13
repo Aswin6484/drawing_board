@@ -124,4 +124,9 @@ class SmoothLine extends PaintContent {
     // TODO: implement getAnchorPoint
     throw UnimplementedError();
   }
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
+  }
 }

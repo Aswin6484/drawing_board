@@ -118,4 +118,9 @@ class Arrow extends PaintContent {
     startPoint = newPosition;
     endPoint = endPoint + delta;
   }
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
+  }
 }
