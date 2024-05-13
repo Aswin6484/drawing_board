@@ -6,14 +6,14 @@ import 'helper/ex_value_builder.dart';
 
 /// 绘图板
 class Painter extends StatelessWidget {
-  const Painter({
-    super.key,
-    required this.drawingController,
-    this.clipBehavior = Clip.antiAlias,
-    this.onPointerDown,
-    this.onPointerMove,
-    this.onPointerUp,
-  });
+  const Painter(
+      {super.key,
+      required this.drawingController,
+      this.clipBehavior = Clip.antiAlias,
+      this.onPointerDown,
+      this.onPointerMove,
+      this.onPointerUp,
+      this.onPanUpdate});
 
   /// 绘制控制器
   final DrawingController drawingController;
@@ -26,6 +26,9 @@ class Painter extends StatelessWidget {
 
   /// 结束拖动
   final Function(PointerUpEvent pue)? onPointerUp;
+
+  /// for panUpdate
+  final Function(double x, double y)? onPanUpdate;
 
   /// 边缘裁剪方式
   final Clip clipBehavior;
@@ -107,7 +110,9 @@ class Painter extends StatelessWidget {
   /// GestureDetector 占位
   void _onPanDown(DragDownDetails ddd) {}
 
-  void _onPanUpdate(DragUpdateDetails dud) {}
+  void _onPanUpdate(DragUpdateDetails dud) {
+    //onPanUpdate?.call(10, 20);
+  }
 
   void _onPanEnd(DragEndDetails ded) {}
   @override
@@ -124,9 +129,9 @@ class Painter extends StatelessWidget {
             p.fingerCount != n.fingerCount,
         builder: (_, DrawConfig config, Widget? child) {
           return GestureDetector(
-            onPanDown: config.fingerCount <= 1 ? _onPanDown : null,
-            onPanUpdate: config.fingerCount <= 1 ? _onPanUpdate : null,
-            onPanEnd: config.fingerCount <= 1 ? _onPanEnd : null,
+            onPanDown: drawingController.couldDraw ? _onPanDown : null,
+            onPanUpdate: drawingController.couldDraw ? _onPanUpdate : null,
+            onPanEnd: drawingController.couldDraw ? _onPanEnd : null,
             child: child,
             onTapDown: (TapDownDetails details) {},
           );

@@ -192,7 +192,9 @@ class DrawingController extends ChangeNotifier {
   Color get getColor => drawConfig.value.color;
 
   /// 能否进行绘制
-  bool get couldDraw => drawConfig.value.fingerCount <= 1;
+  bool get couldDraw =>
+      drawConfig.value.fingerCount <= 1 &&
+      drawConfig.value.contentType != EmptyContent;
 
   /// 开始绘制点
   Offset? get startPoint => _startPoint;
