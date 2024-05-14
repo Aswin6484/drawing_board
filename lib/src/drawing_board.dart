@@ -329,6 +329,26 @@ class _DrawingBoardState extends State<DrawingBoard> {
             IconButton(
                 icon: const Icon(CupertinoIcons.trash),
                 onPressed: () => controller.clear()),
+            SizedBox(
+                height: 24,
+                width: 160,
+                child: Slider(
+                  value: controller.gridWidthSpace.toDouble(),
+                  max: 500,
+                  min: 10,
+                  onChanged: (double v) => controller.gridUpdate(
+                      v.toInt(), controller.gridHeightSpace),
+                )),
+            SizedBox(
+                height: 24,
+                width: 160,
+                child: Slider(
+                  value: controller.gridHeightSpace.toDouble(),
+                  max: 500,
+                  min: 10,
+                  onChanged: (double v) => controller.gridUpdate(
+                      controller.gridWidthSpace, v.toInt()),
+                )),
           ],
         ),
       ),

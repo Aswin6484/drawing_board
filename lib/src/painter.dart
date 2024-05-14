@@ -265,6 +265,7 @@ class _DeepPainter extends CustomPainter {
     final List<PaintContent> contents = controller.getHistory;
 
     if (contents.isEmpty) {
+      controller.drawGrid(canvas);
       return;
     }
 
@@ -273,7 +274,7 @@ class _DeepPainter extends CustomPainter {
     for (int i = 0; i < controller.currentIndex; i++) {
       contents[i].draw(canvas, size, true);
     }
-
+    controller.drawGrid(canvas);
     canvas.restore();
   }
 
