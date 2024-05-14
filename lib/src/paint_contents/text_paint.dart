@@ -41,11 +41,14 @@ class TextPaint extends PaintContent {
   static const int dashSpace = 4;
   late Canvas _canvas;
   late Size _size;
+  int curserTimer = 0;
 
   Offset position = Offset.zero;
   String text = '';
+  String uiText = '';
   Color textColor = Colors.black;
   int fontSize = 30;
+  bool isPipe = true;
 
   @override
   Offset getAnchorPoint() => position;
@@ -58,19 +61,19 @@ class TextPaint extends PaintContent {
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;
-    HardwareKeyboard.instance.addHandler(_handleKey);
+    // HardwareKeyboard.instance.addHandler(_handleKey);
   }
 
-  bool _handleKey(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      final LogicalKeyboardKey logicalKey = event.logicalKey;
-      if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
-        text += event.character!;
-        return true;
-      }
-    }
-    return false;
-  }
+  // bool _handleKey(KeyEvent event) {
+  //   if (event is KeyDownEvent) {
+  //     final LogicalKeyboardKey logicalKey = event.logicalKey;
+  //     if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
+  //       text += event.character!;
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   @override
   void drawing(Offset nowPoint) {
@@ -82,12 +85,16 @@ class TextPaint extends PaintContent {
     //print("Canvas Draw");
     _canvas = canvas;
     _size = size;
+    uiText = text;
+    if (isPipe && timestamp == PaintContent.selectedTimestamp) {
+      uiText += '|';
+    }
     _drawDashedLine(_canvas, _size, paint);
   }
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
     final TextSpan textSpan = TextSpan(
-      text: text,
+      text: uiText,
       style: TextStyle(color: textColor, fontSize: fontSize.toDouble()),
     );
     final TextPainter textPainter = TextPainter(
@@ -168,5 +175,21 @@ class TextPaint extends PaintContent {
     );
 
     return textBounds;
+  }
+
+  void updateText(String updatedText) {
+    text = updatedText;
+  }
+
+  @override
+  void updateUI() {
+    if (timestamp == PaintContent.selectedTimestamp) {
+      updateText(DrawingController.text);
+      curserTimer += 1;
+      if (curserTimer == 3) {
+        curserTimer = 0;
+        isPipe = !isPipe;
+      }
+    }
   }
 }

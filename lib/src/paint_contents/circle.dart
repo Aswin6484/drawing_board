@@ -132,4 +132,9 @@ class Circle extends PaintContent {
 
   @override
   Rect get bounds => Rect.fromCircle(center: center, radius: radius);
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
+  }
 }

@@ -167,4 +167,9 @@ class Ruler extends PaintContent {
 
     return Rect.fromLTRB(left, top, right, bottom);
   }
+
+  @override
+  void updateUI() {
+    // TODO: implement updateUI
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -11,6 +13,8 @@ abstract class PaintContent {
 
   final DateTime timestamp;
   Offset position = Offset.zero;
+
+  static DateTime? selectedTimestamp;
 
   /// 画笔
   late Paint paint;
@@ -35,6 +39,8 @@ abstract class PaintContent {
   bool containsContent(Offset offset);
   Offset? getAnchorPoint();
   void updatePosition(Offset newPosition);
+  void updateUI();
+
   Rect get bounds;
 
   /// toJson
