@@ -61,19 +61,7 @@ class TextPaint extends PaintContent {
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;
-    // HardwareKeyboard.instance.addHandler(_handleKey);
   }
-
-  // bool _handleKey(KeyEvent event) {
-  //   if (event is KeyDownEvent) {
-  //     final LogicalKeyboardKey logicalKey = event.logicalKey;
-  //     if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
-  //       text += event.character!;
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   @override
   void drawing(Offset nowPoint) {
@@ -103,9 +91,9 @@ class TextPaint extends PaintContent {
     );
     textPainter.layout();
     final Offset textPosition = Offset(
-      position.dx - textPainter.height / 2,
-      position.dy - textPainter.height / 2,
-    );
+        position.dx, //- textPainter.height / 2,
+        position.dy //- textPainter.height / 2,
+        );
     textPainter.paint(canvas, textPosition);
   }
 
@@ -139,12 +127,12 @@ class TextPaint extends PaintContent {
 
     final Rect textBounds = Rect.fromPoints(
       Offset(
-        position.dx - textPainter.height / 2,
-        position.dy - textPainter.height / 2,
-      ),
+          position.dx, // - textPainter.height / 2,
+          position.dy // - textPainter.height / 2,
+          ),
       Offset(
-        position.dx + textPainter.width + textPainter.height / 2,
-        position.dy + textPainter.height / 2,
+        position.dx + textPainter.width,
+        position.dy + textPainter.height,
       ),
     );
 
@@ -165,12 +153,12 @@ class TextPaint extends PaintContent {
 
     final Rect textBounds = Rect.fromPoints(
       Offset(
-        position.dx - textPainter.height / 2,
-        position.dy - textPainter.height / 2,
-      ),
+          position.dx, // - textPainter.height / 2,
+          position.dy //- textPainter.height / 2,
+          ),
       Offset(
-        position.dx + textPainter.width + textPainter.height / 2,
-        position.dy + textPainter.height / 2,
+        position.dx + textPainter.width,
+        position.dy + textPainter.height,
       ),
     );
 
