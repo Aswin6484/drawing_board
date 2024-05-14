@@ -2,9 +2,14 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import '../paint_contents.dart';
 import 'helper/safe_value_notifier.dart';
 
@@ -208,6 +213,75 @@ class DrawingController extends ChangeNotifier {
   Function? callBack;
   static String text = "";
   bool isHandlerAdded = false;
+
+  /// Grid on or off
+  bool isGridOn = true;
+  int gridWidthSpace = 100;
+  int gridHeightSpace = 50;
+  Paint gridPaint = Paint()
+    ..color = ui.Color.fromARGB(255, 149, 255, 49)
+    ..isAntiAlias = true
+    ..strokeWidth = 1;
+
+  void gridUpdate(int width, int height) {
+    gridWidthSpace = width;
+    gridHeightSpace = height;
+
+    refresh();
+  }
+
+  void changeGrid() {
+    isGridOn = !isGridOn;
+    refresh();
+  }
+
+  drawGrid(Canvas canvas) {
+    if (isGridOn && drawConfig.value.size != null) {
+      var wid = drawConfig.value.size!.width;
+      var hei = drawConfig.value.size!.height;
+      for (int i = 0; i < wid; i += gridWidthSpace) {
+        _drawDashedLine(
+            canvas, Offset(i.toDouble(), 0), Offset(i.toDouble(), hei));
+      }
+
+      for (int i = 0; i < hei; i += gridHeightSpace) {
+        _drawDashedLine(
+            canvas, Offset(0, i.toDouble()), Offset(wid, i.toDouble()));
+      }
+    }
+  }
+
+  void _drawDashedLine(Canvas canvas, Offset startPoint, Offset endPoint) {
+    const int dashLength = 10;
+    const double dashRatio = 0.5;
+
+    final double totalDistance = sqrt(pow(endPoint.dx - startPoint.dx, 2) +
+        pow(endPoint.dy - startPoint.dy, 2));
+
+    const double actualDashLength = dashLength * dashRatio;
+    const double gapLength = dashLength - actualDashLength;
+
+    final dx = (endPoint.dx - startPoint.dx) / totalDistance;
+    final dy = (endPoint.dy - startPoint.dy) / totalDistance;
+
+    double currentX = startPoint.dx;
+    double currentY = startPoint.dy;
+    double remainingDistance = totalDistance;
+
+    while (remainingDistance > 0) {
+      final double endX =
+          currentX + dx * min(actualDashLength, remainingDistance);
+      final double endY =
+          currentY + dy * min(actualDashLength, remainingDistance);
+
+      canvas.drawLine(
+          Offset(currentX, currentY), Offset(endX, endY), gridPaint);
+
+      remainingDistance -= actualDashLength + gapLength;
+      currentX = endX + dx * gapLength;
+      currentY = endY + dy * gapLength;
+    }
+  }
 
   /// 设置画板大小
   void setBoardSize(Size? size) {
