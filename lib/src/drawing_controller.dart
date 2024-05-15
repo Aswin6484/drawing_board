@@ -342,22 +342,8 @@ class DrawingController extends ChangeNotifier {
   void setPaintContent(PaintContent content) {
     content.paint = drawConfig.value.paint;
     _paintContent = content;
-    PaintContent.selectedTimestamp = content.timestamp;
     drawConfig.value =
         drawConfig.value.copyWith(contentType: content.runtimeType);
-
-    callBack = content.updateUI;
-
-    if (isHandlerAdded) {
-      HardwareKeyboard.instance.removeHandler(_handleKey);
-      isHandlerAdded = false;
-    }
-
-    if (content.runtimeType == TextPaint) {
-      text = (content as TextPaint).text;
-      isHandlerAdded = true;
-      HardwareKeyboard.instance.addHandler(_handleKey);
-    }
   }
 
   bool _handleKey(KeyEvent event) {
@@ -385,9 +371,9 @@ class DrawingController extends ChangeNotifier {
   }
 
   void runTimer() {
-    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      print("Inside timer");
-      for (final scene in _history) {
+    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
+      print("sdfsdfsdf");
+      for (final PaintContent scene in _history) {
         if (scene.timestamp == PaintContent.selectedTimestamp) {
           callBack = scene.updateUI;
           callBack!.call();
@@ -426,6 +412,19 @@ class DrawingController extends ChangeNotifier {
     bounds = Rect.fromLTRB(
         startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
 // Store the current content as the last drawn content
+    PaintContent.selectedTimestamp = currentContent!.timestamp;
+    callBack = currentContent!.updateUI;
+
+    if (isHandlerAdded) {
+      HardwareKeyboard.instance.removeHandler(_handleKey);
+      isHandlerAdded = false;
+    }
+
+    if (currentContent.runtimeType == TextPaint) {
+      text = (currentContent! as TextPaint).text;
+      isHandlerAdded = true;
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    }
   }
 
   /// 取消绘制
@@ -457,9 +456,16 @@ class DrawingController extends ChangeNotifier {
     }
 
     if (currentContent != null) {
-      _history.add(currentContent!);
-      _currentIndex = _history.length;
-      currentContent = null;
+      if (_history.indexWhere(
+              (element) => element.timestamp == currentContent!.timestamp) ==
+          -1) {
+        _history.add(currentContent!);
+        _currentIndex = _history.length;
+      }
+
+      if (currentContent!.runtimeType != TextPaint) {
+        currentContent = null;
+      }
     }
 
     // Update bounds to fit the current content
@@ -486,6 +492,7 @@ class DrawingController extends ChangeNotifier {
       _selectedContent!.isSelected = false;
     }
     _selectedContent = content;
+    currentContent = content;
     PaintContent.selectedTimestamp = content.timestamp;
     callBack = content.updateUI;
     if (isHandlerAdded) {
@@ -507,6 +514,7 @@ class DrawingController extends ChangeNotifier {
     if (_selectedContent != null) {
       _selectedContent!.isSelected = false;
       _selectedContent = null;
+      currentContent = null;
       PaintContent.selectedTimestamp = null;
       callBack = null;
 

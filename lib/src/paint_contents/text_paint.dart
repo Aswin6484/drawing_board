@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../flutter_drawing_board.dart';
 import '../../paint_extension.dart';
 import 'paint_content.dart';
 
 class TextPaint extends PaintContent {
-  TextPaint(this._controller, DateTime? timestamp)
+  TextPaint({DateTime? timestamp})
       : super(timestamp: timestamp ?? DateTime.now());
 
   TextPaint.data(
@@ -35,8 +34,6 @@ class TextPaint extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
-  late DrawingController _controller;
-
   static const int dashWidth = 4;
   static const int dashSpace = 4;
   late Canvas _canvas;
@@ -49,6 +46,14 @@ class TextPaint extends PaintContent {
   Color textColor = Colors.black;
   int fontSize = 30;
   bool isPipe = true;
+
+  void fontUpdate(int fnt) {
+    fontSize = fnt;
+  }
+
+  void fontColorUpdate(Color colr) {
+    textColor = colr;
+  }
 
   @override
   Offset getAnchorPoint() => position;
@@ -98,7 +103,7 @@ class TextPaint extends PaintContent {
   }
 
   @override
-  TextPaint copy() => TextPaint(_controller, timestamp);
+  TextPaint copy() => TextPaint();
 
   @override
   Map<String, dynamic> toContentJson() {
