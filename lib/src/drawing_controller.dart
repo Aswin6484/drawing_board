@@ -456,8 +456,13 @@ class DrawingController extends ChangeNotifier {
     }
 
     if (currentContent != null) {
-      _history.add(currentContent!);
-      _currentIndex = _history.length;
+      if (_history.indexWhere(
+              (element) => element.timestamp == currentContent!.timestamp) ==
+          -1) {
+        _history.add(currentContent!);
+        _currentIndex = _history.length;
+      }
+
       if (currentContent!.runtimeType != TextPaint) {
         currentContent = null;
       }
@@ -487,6 +492,7 @@ class DrawingController extends ChangeNotifier {
       _selectedContent!.isSelected = false;
     }
     _selectedContent = content;
+    currentContent = content;
     PaintContent.selectedTimestamp = content.timestamp;
     callBack = content.updateUI;
     if (isHandlerAdded) {
@@ -508,6 +514,7 @@ class DrawingController extends ChangeNotifier {
     if (_selectedContent != null) {
       _selectedContent!.isSelected = false;
       _selectedContent = null;
+      currentContent = null;
       PaintContent.selectedTimestamp = null;
       callBack = null;
 
