@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 import '../../paint_contents.dart';
 import '../../paint_extension.dart';
 
@@ -23,7 +25,7 @@ class Arrow extends PaintContent {
 
   static const int dashWidth = 4;
   static const int dashSpace = 4;
-
+  double selectionCircleRadius = 6.0;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
 
@@ -122,5 +124,16 @@ class Arrow extends PaintContent {
   @override
   void updateUI() {
     // TODO: implement updateUI
+  }
+
+  @override
+  void drawSelection(Canvas canvas) {
+    final Paint selectionPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
+
+    canvas.drawCircle(startPoint, selectionCircleRadius, selectionPaint);
+    canvas.drawCircle(endPoint, selectionCircleRadius, selectionPaint);
   }
 }

@@ -48,4 +48,9 @@ class EmptyContent extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+
+  @override
+  void drawSelection(Canvas canvas) {
+    // TODO: implement drawSelection
+  }
 }

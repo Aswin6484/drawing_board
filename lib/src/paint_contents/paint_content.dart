@@ -40,6 +40,7 @@ abstract class PaintContent {
   Offset? getAnchorPoint();
   void updatePosition(Offset newPosition);
   void updateUI();
+  void drawSelection(Canvas canvas);
 
   Rect get bounds;
 
