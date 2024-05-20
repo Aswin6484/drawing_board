@@ -36,7 +36,9 @@ class TextPaint extends PaintContent {
     );
   }
   late DrawingController _controller;
+  double _rotation = 0.0;
 
+  double get rotation => _rotation;
   static const int dashWidth = 4;
   static const int dashSpace = 4;
   late Canvas _canvas;
@@ -191,5 +193,26 @@ class TextPaint extends PaintContent {
         isPipe = !isPipe;
       }
     }
+  }
+
+  @override
+  void drawSelection(Canvas canvas) {
+    // TODO: implement drawSelection
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    // TODO: implement isTapOnSelectionCircle
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatedragposition(Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }

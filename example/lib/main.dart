@@ -165,6 +165,32 @@ class Triangle extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+
+  @override
+  void rotate(double angle) {
+    // TODO: implement rotate
+  }
+
+  @override
+  void drawSelection(ui.Canvas canvas) {
+    // TODO: implement drawSelection
+  }
+
+  @override
+  bool isTapOnSelectionCircle(ui.Offset tapOffset) {
+    // TODO: implement isTapOnSelectionCircle
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatedragposition(ui.Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
+  }
 }
 
 /// Custom drawn image
@@ -250,6 +276,32 @@ class ImageContent extends PaintContent {
   @override
   void updateUI() {
     // TODO: implement updateUI
+  }
+
+  @override
+  void rotate(double angle) {
+    // TODO: implement rotate
+  }
+
+  @override
+  void drawSelection(ui.Canvas canvas) {
+    // TODO: implement drawSelection
+  }
+
+  @override
+  bool isTapOnSelectionCircle(ui.Offset tapOffset) {
+    // TODO: implement isTapOnSelectionCircle
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatedragposition(ui.Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }
 

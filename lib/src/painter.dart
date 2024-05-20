@@ -6,7 +6,7 @@ import 'helper/ex_value_builder.dart';
 
 /// 绘图板
 class Painter extends StatelessWidget {
-  const Painter(
+  Painter(
       {super.key,
       required this.drawingController,
       this.clipBehavior = Clip.antiAlias,
@@ -32,27 +32,40 @@ class Painter extends StatelessWidget {
 
   /// 边缘裁剪方式
   final Clip clipBehavior;
+  PaintContent? selectedContent;
+  bool isDragging = false;
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
-    PaintContent? content = drawingController.selectedContent;
-    if (content != null) {
-      if (_UpPainter(controller: drawingController)
-          .isClickInCloseButton(pde.localPosition)) {
-        drawingController.removePaintContentByTimestamp(content.timestamp);
-        drawingController.deselectContent();
-      } else {
-        content = drawingController.getContentAtPosition(pde.localPosition);
-        if (content != null) {
-          drawingController.selectContent(content);
+    selectedContent = drawingController.selectedContent;
+
+    if (selectedContent != null) {
+      selectedContent =
+          drawingController.getContentAtPosition(pde.localPosition);
+      if (selectedContent != null) {
+        drawingController.selectContent(selectedContent!);
+        if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
+          selectedContent!.drawing(pde.localPosition);
         } else {
-          drawingController.deselectContent();
+          final Offset touchPosition = pde.localPosition;
+          final PaintContent? content =
+              drawingController.getContentAtPosition(pde.localPosition);
+          if (content != null &&
+              !content.isTapOnSelectionCircle(pde.localPosition)) {
+            drawingController.draggingContent = content;
+            drawingController.draggingOffset =
+                touchPosition - content.getAnchorPoint()!;
+            isDragging = true;
+          }
         }
+      } else {
+        drawingController.deselectContent();
       }
     } else {
-      content = drawingController.getContentAtPosition(pde.localPosition);
-      if (content != null) {
-        drawingController.selectContent(content);
+      selectedContent =
+          drawingController.getContentAtPosition(pde.localPosition);
+      if (selectedContent != null) {
+        drawingController.selectContent(selectedContent!);
       } else {
         drawingController.deselectContent();
       }
@@ -74,12 +87,29 @@ class Painter extends StatelessWidget {
   /// 手指移动
   void _onPointerMove(PointerMoveEvent pme) {
     if (!drawingController.couldDraw) {
-      if (drawingController.currentContent != null) {
+      if (drawingController.selectedContent != null) {
         drawingController.endDraw();
+
+        // Check if we are dragging content
+        if (isDragging) {
+          if (drawingController.draggingContent != null &&
+              drawingController.draggingOffset != null) {
+            final Offset newPosition =
+                pme.localPosition - drawingController.draggingOffset!;
+
+            // Update position of dragging content
+            drawingController.draggingContent!.updatedragposition(newPosition);
+          }
+        } else {
+          // Update the position of the selected content
+          selectedContent!.updatePosition(pme.localPosition);
+          selectedContent!.drawing(pme.localPosition);
+        }
       }
       return;
     }
 
+    // If in drawing mode, update the drawing
     drawingController.drawing(pme.localPosition);
     onPointerMove?.call(pme);
   }
@@ -94,7 +124,6 @@ class Painter extends StatelessWidget {
     if (drawingController.startPoint == pue.localPosition) {
       drawingController.drawing(pue.localPosition);
     }
-
     drawingController.endDraw();
     onPointerUp?.call(pue);
   }
@@ -103,7 +132,8 @@ class Painter extends StatelessWidget {
     if (!drawingController.couldDraw) {
       return;
     }
-
+    drawingController.draggingContent = null;
+    drawingController.draggingOffset = null;
     drawingController.endDraw();
   }
 
@@ -111,7 +141,7 @@ class Painter extends StatelessWidget {
   void _onPanDown(DragDownDetails ddd) {}
 
   void _onPanUpdate(DragUpdateDetails dud) {
-    //onPanUpdate?.call(10, 20);
+    // onPanUpdate?.call(10, 20);
   }
 
   void _onPanEnd(DragEndDetails ded) {}
@@ -129,11 +159,19 @@ class Painter extends StatelessWidget {
             p.fingerCount != n.fingerCount,
         builder: (_, DrawConfig config, Widget? child) {
           return GestureDetector(
-            onPanDown: drawingController.couldDraw ? _onPanDown : null,
-            onPanUpdate: drawingController.couldDraw ? _onPanUpdate : null,
-            onPanEnd: drawingController.couldDraw ? _onPanEnd : null,
+            onPanDown: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanDown
+                : null,
+            onPanUpdate: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanUpdate
+                : null,
+            onPanEnd: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanEnd
+                : null,
             child: child,
-            onTapDown: (TapDownDetails details) {},
           );
         },
         child: ClipRect(
@@ -166,88 +204,12 @@ class _UpPainter extends CustomPainter {
       controller.currentContent?.draw(canvas, size, false);
     }
     for (final PaintContent content in controller.getHistory) {
-      Rect rect;
-      if (content.isSelected) {
-        if (content is Circle) {
-          final Circle circleContent = content;
-          final double width =
-              (circleContent.endPoint.dx - circleContent.startPoint.dx).abs();
-          final double height =
-              (circleContent.endPoint.dy - circleContent.startPoint.dy).abs();
-          rect = Rect.fromCenter(
-                  center: circleContent.center, width: width, height: height)
-              .inflate(4.0);
-        } else {
-          rect = content.bounds.inflate(4.0);
-        }
-
-        // Draw a rectangle around the selected paint content
-        canvas.drawRect(
-            rect,
-            Paint()
-              ..color = const Color.fromARGB(255, 148, 145, 145)
-              ..strokeWidth = 1.0
-              ..style = PaintingStyle.stroke);
-
-        // Calculate position for close icon
-        const double iconSize = 10.0;
-        const double padding = 4.0;
-        final Offset closeIconPosition = Offset(
-          rect.right + padding,
-          rect.top - padding - iconSize,
-        );
-        _drawCloseIcon(canvas, closeIconPosition, iconSize);
-      }
       // Draw the paint content
       content.draw(canvas, size, false);
+      if (content.isSelected) {
+        content.drawSelection(canvas);
+      }
     }
-  }
-
-  void _drawCloseIcon(Canvas canvas, Offset position, double size) {
-    final Paint paint = Paint()
-      ..color = Colors.black // Change this to your desired color
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawLine(
-      position,
-      position.translate(size, size),
-      paint,
-    );
-    canvas.drawLine(
-      position.translate(size, 0),
-      position.translate(0, size),
-      paint,
-    );
-    canvas.drawRect(
-      Rect.fromCircle(
-          center: position.translate(size / 2, size / 2), radius: size / 2),
-      Paint()..color = Colors.transparent, // Invisible rectangle to detect taps
-    );
-  }
-
-  bool isClickInCloseButton(Offset clickPosition) {
-    const double iconSize = 40.0;
-    const double padding = 4.0;
-
-    Rect rect;
-    if (controller.selectedContent is Circle) {
-      final Circle circleContent = controller.selectedContent! as Circle;
-      final double width =
-          (circleContent.endPoint.dx - circleContent.startPoint.dx).abs();
-      final double height =
-          (circleContent.endPoint.dy - circleContent.startPoint.dy).abs();
-      rect = Rect.fromCenter(
-              center: circleContent.center, width: width, height: height)
-          .inflate(4.0);
-    } else {
-      rect = controller.selectedContent!.bounds.inflate(4.0);
-    }
-
-    return clickPosition.dx >= rect.right + padding &&
-        clickPosition.dx <= rect.right + padding + iconSize &&
-        clickPosition.dy >= rect.top - padding - iconSize &&
-        clickPosition.dy <= rect.top - padding;
   }
 
   @override

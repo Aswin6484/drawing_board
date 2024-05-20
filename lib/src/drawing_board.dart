@@ -139,7 +139,6 @@ class DrawingBoard extends StatefulWidget {
 class _DrawingBoardState extends State<DrawingBoard> {
   late final DrawingController _controller =
       widget.controller ?? DrawingController();
-
   @override
   void initState() {
     // TODO: implement initState
@@ -148,6 +147,7 @@ class _DrawingBoardState extends State<DrawingBoard> {
     _controller.runTimer();
   }
 
+  Offset finalPosition = Offset.zero;
   @override
   void dispose() {
     if (widget.controller == null) {
@@ -233,6 +233,33 @@ class _DrawingBoardState extends State<DrawingBoard> {
     );
   }
 
+  void _handlePanStart(DragStartDetails details) {
+    final PaintContent selectedContent = _controller.selectedContent!;
+    if (selectedContent.isTapOnSelectionCircle(details.localPosition)) {
+      setState(() {
+        selectedContent.startDraw(details.localPosition);
+      });
+    }
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    final PaintContent selectedContent = _controller.selectedContent!;
+    setState(() {
+      final Offset delta =
+          details.localPosition - selectedContent.getAnchorPoint()!;
+      // selectedContent.updateScale(details.localPosition);
+      finalPosition = details.localPosition;
+      selectedContent.updatePosition(finalPosition);
+    });
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    final PaintContent selectedContent = _controller.selectedContent!;
+    setState(() {
+      // selectedContent.updatePosition(finalPosition);
+    });
+  }
+
   /// 构建背景
   Widget get _buildImage => GetSize(
         onChange: (Size? size) => _controller.setBoardSize(size),
@@ -252,34 +279,37 @@ class _DrawingBoardState extends State<DrawingBoard> {
         );
       },
       child: GestureDetector(
-        onLongPressStart: (LongPressStartDetails details) {
-          final Offset touchPosition = details.localPosition;
-          final PaintContent? content =
-              _controller.getContentAtPosition(details.localPosition);
-          if (content != null) {
-            setState(() {
-              _controller.draggingContent = content;
-              _controller.draggingOffset =
-                  touchPosition - content.getAnchorPoint()!;
-            });
-          }
-        },
-        onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
-          setState(() {
-            if (_controller.draggingContent != null &&
-                _controller.draggingOffset != null) {
-              final Offset newPosition =
-                  details.localPosition - _controller.draggingOffset!;
-              _controller.draggingContent!.updatePosition(newPosition);
-            }
-          });
-        },
-        onLongPressEnd: (LongPressEndDetails details) {
-          setState(() {
-            _controller.draggingContent = null;
-            _controller.draggingOffset = null;
-          });
-        },
+        // onLongPressStart: (LongPressStartDetails details) {
+        //   final Offset touchPosition = details.localPosition;
+        //   final PaintContent? content =
+        //       _controller.getContentAtPosition(details.localPosition);
+        //   if (content != null &&
+        //       !content.isTapOnSelectionCircle(details.localPosition)) {
+        //     setState(() {
+        //       _controller.draggingContent = content;
+        //       _controller.draggingOffset =
+        //           touchPosition - content.getAnchorPoint()!;
+        //     });
+        //   }
+        // },
+        // onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
+        //   setState(() {
+        //     if (_controller.draggingContent != null &&
+        //         _controller.draggingOffset != null) {
+        //       final Offset newPosition =
+        //           details.localPosition - _controller.draggingOffset!;
+
+        //       // Update position of dragging content
+        //       _controller.draggingContent!.updatedragposition(newPosition);
+        //     }
+        //   });
+        // },
+        // onLongPressEnd: (LongPressEndDetails details) {
+        //   setState(() {
+        //     _controller.draggingContent = null;
+        //     _controller.draggingOffset = null;
+        //   });
+        // },
         child: Painter(
           drawingController: _controller,
           onPointerDown: widget.onPointerDown,
