@@ -165,6 +165,11 @@ class Triangle extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+
+  @override
+  void drawSelection(ui.Canvas canvas) {
+    // TODO: implement drawSelection
+  }
 }
 
 /// Custom drawn image
@@ -250,6 +255,11 @@ class ImageContent extends PaintContent {
   @override
   void updateUI() {
     // TODO: implement updateUI
+  }
+
+  @override
+  void drawSelection(ui.Canvas canvas) {
+    // TODO: implement drawSelection
   }
 }
 

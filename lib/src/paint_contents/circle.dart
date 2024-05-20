@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
@@ -37,6 +38,11 @@ class Circle extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
+  Offset top = Offset.zero;
+  Offset bottom = Offset.zero;
+  Offset left = Offset.zero;
+  Offset right = Offset.zero;
+  double circleRadius = 6.0;
 
   /// 是否为椭圆
   final bool isEllipse;
@@ -136,5 +142,28 @@ class Circle extends PaintContent {
   @override
   void updateUI() {
     // TODO: implement updateUI
+  }
+  @override
+  void drawSelection(Canvas canvas) {
+    final Paint selectionPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
+
+    // Radius for the selection circles
+    // Calculate the width and height of the oval
+    final double width = (endPoint.dx - startPoint.dx).abs() / 2;
+    final double height = (endPoint.dy - startPoint.dy).abs() / 2;
+    // Calculate positions for the selection circles
+    top = Offset(center.dx, center.dy - height);
+    bottom = Offset(center.dx, center.dy + height);
+    left = Offset(center.dx - width, center.dy);
+    right = Offset(center.dx + width, center.dy);
+
+    // Draw selection circles at the calculated positions
+    canvas.drawCircle(top, circleRadius, selectionPaint);
+    canvas.drawCircle(bottom, circleRadius, selectionPaint);
+    canvas.drawCircle(left, circleRadius, selectionPaint);
+    canvas.drawCircle(right, circleRadius, selectionPaint);
   }
 }

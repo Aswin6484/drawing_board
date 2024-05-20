@@ -172,4 +172,13 @@ class Ruler extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+  @override
+  void drawSelection(Canvas canvas) {
+    final Paint selectionPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
+    canvas.drawCircle(startPoint, 6.0, selectionPaint);
+    canvas.drawCircle(endPoint, 6.0, selectionPaint);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
@@ -26,7 +27,7 @@ class StraightLine extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
-
+  double circleRadius = 6.0;
   Offset? startPoint;
   Offset? endPoint;
   @override
@@ -120,5 +121,19 @@ class StraightLine extends PaintContent {
   @override
   void updateUI() {
     // TODO: implement updateUI
+  }
+  @override
+  void drawSelection(Canvas canvas) {
+    final Paint selectionPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
+
+    if (startPoint != null) {
+      canvas.drawCircle(startPoint!, circleRadius, selectionPaint);
+    }
+    if (endPoint != null) {
+      canvas.drawCircle(endPoint!, circleRadius, selectionPaint);
+    }
   }
 }

@@ -185,4 +185,18 @@ class TextPaint extends PaintContent {
       }
     }
   }
+
+  @override
+  void drawSelection(Canvas canvas) {
+    final Paint selectionPaint = Paint()
+      ..color = Colors.grey
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    // Get the bounds of the text
+    final Rect textBounds = bounds;
+
+    // Draw a rectangle around the text
+    canvas.drawRect(textBounds, selectionPaint);
+  }
 }
