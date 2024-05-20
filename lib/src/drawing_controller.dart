@@ -346,8 +346,13 @@ class DrawingController extends ChangeNotifier {
     );
   }
 
+  late PaintContent lastSelected;
+
   /// 设置绘制内容
   void setPaintContent(PaintContent content) {
+    if (content.runtimeType != EmptyContent) {
+      lastSelected = content;
+    }
     content.paint = drawConfig.value.paint;
     _paintContent = content;
     drawConfig.value =

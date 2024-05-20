@@ -35,20 +35,15 @@ class Painter extends StatelessWidget {
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
-    PaintContent? content = drawingController.selectedContent;
+    final PaintContent? content =
+        drawingController.getContentAtPosition(pde.localPosition);
     if (content != null) {
-      content = drawingController.getContentAtPosition(pde.localPosition);
-      if (content != null) {
-        drawingController.selectContent(content);
-      } else {
-        drawingController.deselectContent();
-      }
+      drawingController.selectContent(content);
     } else {
-      content = drawingController.getContentAtPosition(pde.localPosition);
-      if (content != null) {
-        drawingController.selectContent(content);
-      } else {
+      if (drawingController.selectedContent != null) {
         drawingController.deselectContent();
+        drawingController.setPaintContent(drawingController.lastSelected);
+        return;
       }
     }
     if (!drawingController.couldDraw) {
