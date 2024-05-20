@@ -230,6 +230,14 @@ class DrawingController extends ChangeNotifier {
     refresh();
   }
 
+  void updateSelectedContentColor(Color newColor) {
+    if (_selectedContent != null) {
+      drawConfig.value = drawConfig.value.copyWith(color: newColor);
+      _selectedContent!.paint.color = newColor;
+      refresh();
+    }
+  }
+
   void changeGrid() {
     isGridOn = !isGridOn;
     refresh();
