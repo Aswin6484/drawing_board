@@ -50,6 +50,11 @@ class EmptyContent extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
+  @override
   void rotate(double angle) {
     // TODO: implement rotate
   }

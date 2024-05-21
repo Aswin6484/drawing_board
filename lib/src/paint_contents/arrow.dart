@@ -26,7 +26,7 @@ class Arrow extends PaintContent {
   static const int dashWidth = 4;
   static const int dashSpace = 4;
   double _rotation = 0.0;
-  double selectionCircleRadius = 6.0;
+
   double get rotation => _rotation;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
@@ -174,5 +174,15 @@ class Arrow extends PaintContent {
   @override
   void updateScale(Offset position) {
     // TODO: implement updateScale
+  }
+
+  @override
+  void editDrawing(Offset nowPoint) {
+    if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
+      startPoint = endPoint;
+      endPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
   }
 }

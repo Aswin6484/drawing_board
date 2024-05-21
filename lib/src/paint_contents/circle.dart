@@ -196,6 +196,11 @@ class Circle extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
+  @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()
       ..color = Colors.blue

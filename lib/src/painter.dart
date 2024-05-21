@@ -39,13 +39,19 @@ class Painter extends StatelessWidget {
   void _onPointerDown(PointerDownEvent pde) {
     selectedContent = drawingController.selectedContent;
 
+    // first check anything is selected
+    // if selected check click on main circles.
+    // if change
+
     if (selectedContent != null) {
       selectedContent =
           drawingController.getContentAtPosition(pde.localPosition);
       if (selectedContent != null) {
         drawingController.selectContent(selectedContent!);
         if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
-          selectedContent!.drawing(pde.localPosition);
+          // logic change
+          isDragging = false;
+          selectedContent!.editDrawing(pde.localPosition);
         } else {
           final Offset touchPosition = pde.localPosition;
           final PaintContent? content =
@@ -116,6 +122,7 @@ class Painter extends StatelessWidget {
 
   /// 手指抬起
   void _onPointerUp(PointerUpEvent pue) {
+    isDragging = false;
     if (!drawingController.couldDraw ||
         drawingController.currentContent == null) {
       return;

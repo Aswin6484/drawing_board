@@ -191,6 +191,11 @@ class Triangle extends PaintContent {
   void updateScale(Offset position) {
     // TODO: implement updateScale
   }
+
+  @override
+  void editDrawing(ui.Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
 }
 
 /// Custom drawn image
@@ -302,6 +307,11 @@ class ImageContent extends PaintContent {
   @override
   void updateScale(Offset position) {
     // TODO: implement updateScale
+  }
+
+  @override
+  void editDrawing(ui.Offset nowPoint) {
+    // TODO: implement editDrawing
   }
 }
 

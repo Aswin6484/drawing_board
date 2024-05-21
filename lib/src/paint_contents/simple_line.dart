@@ -66,6 +66,11 @@ class SimpleLine extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
+  @override
   Offset getAnchorPoint() {
     // TODO: implement getAnchorPoint
     throw UnimplementedError();

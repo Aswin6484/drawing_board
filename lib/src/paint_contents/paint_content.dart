@@ -12,6 +12,7 @@ abstract class PaintContent {
   final DateTime timestamp;
   Offset position = Offset.zero;
   static DateTime? selectedTimestamp;
+  double selectionCircleRadius = 6.0;
 
   /// 画笔
   late Paint paint;
@@ -29,6 +30,8 @@ abstract class PaintContent {
 
   /// 正在绘制
   void drawing(Offset nowPoint);
+
+  void editDrawing(Offset nowPoint);
 
   /// 开始绘制
   void startDraw(Offset startPoint);

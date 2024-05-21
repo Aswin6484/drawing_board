@@ -66,6 +66,11 @@ class TextPaint extends PaintContent {
     // HardwareKeyboard.instance.addHandler(_handleKey);
   }
 
+  @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
   // bool _handleKey(KeyEvent event) {
   //   if (event is KeyDownEvent) {
   //     final LogicalKeyboardKey logicalKey = event.logicalKey;

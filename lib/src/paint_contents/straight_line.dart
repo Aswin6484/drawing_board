@@ -60,6 +60,16 @@ class StraightLine extends PaintContent {
   void drawing(Offset nowPoint) => endPoint = nowPoint;
 
   @override
+  void editDrawing(Offset nowPoint) {
+    if ((nowPoint - startPoint!).distance <= selectionCircleRadius) {
+      startPoint = endPoint;
+      endPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
+  }
+
+  @override
   void draw(Canvas canvas, Size size, bool deeper) {
     if (startPoint == null || endPoint == null) {
       return;

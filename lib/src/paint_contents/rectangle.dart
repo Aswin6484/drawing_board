@@ -93,6 +93,11 @@ class Rectangle extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
+  @override
   void drawSelection(Canvas canvas) {
     // TODO: implement drawSelection
   }
