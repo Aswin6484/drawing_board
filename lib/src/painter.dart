@@ -43,21 +43,17 @@ class Painter extends StatelessWidget {
       if (drawingController.selectedContent != null) {
         drawingController.deselectContent();
         drawingController.setPaintContent(drawingController.lastSelected);
+        onPointerDown?.call(pde);
         return;
       }
     }
+
     if (!drawingController.couldDraw) {
+      onPointerDown?.call(pde);
       return;
     }
-
-    Future<void>.delayed(const Duration(milliseconds: 50), () {
-      if (!drawingController.couldDraw) {
-        return;
-      }
-
-      drawingController.startDraw(pde.localPosition);
-      onPointerDown?.call(pde);
-    });
+    drawingController.startDraw(pde.localPosition);
+    onPointerDown?.call(pde);
   }
 
   /// 手指移动
