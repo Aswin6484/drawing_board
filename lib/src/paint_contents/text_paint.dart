@@ -47,7 +47,7 @@ class TextPaint extends PaintContent {
   Offset position = Offset.zero;
   String text = '';
   String uiText = '';
-  Color textColor = Colors.black;
+  Color textColor = Colors.white;
   int fontSize = 30;
   bool isPipe = true;
 
@@ -217,7 +217,7 @@ class TextPaint extends PaintContent {
 
   @override
   void updatedragposition(Offset newPosition) {
-    // TODO: implement updatedragposition
+    position = newPosition;
   }
 
   @override

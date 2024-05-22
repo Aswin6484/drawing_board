@@ -233,7 +233,11 @@ class Ruler extends PaintContent {
 
   @override
   void updatedragposition(Offset newPosition) {
-    // TODO: implement updatedragposition
+    final Offset delta = newPosition - startPoint!;
+    startPoint = newPosition;
+    if (endPoint != null) {
+      endPoint = endPoint! + delta;
+    }
   }
 
   @override
