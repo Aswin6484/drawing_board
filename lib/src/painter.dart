@@ -37,16 +37,21 @@ class Painter extends StatelessWidget {
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
-    selectedContent = drawingController.selectedContent;
-
-    // first check anything is selected
-    // if selected check click on main circles.
-    // if change
-
-    if (selectedContent != null) {
+    if (drawingController.selectedContent == null) {
       selectedContent =
           drawingController.getContentAtPosition(pde.localPosition);
       if (selectedContent != null) {
+        drawingController.selectContent(selectedContent!);
+      }
+    } else {
+      selectedContent =
+          drawingController.getContentAtPosition(pde.localPosition);
+      if (selectedContent == null) {
+        drawingController.deselectContent();
+        drawingController.setPaintContent(drawingController.lastSelected);
+        onPointerDown?.call(pde);
+        return;
+      } else {
         drawingController.selectContent(selectedContent!);
         if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
           // logic change
@@ -64,22 +69,8 @@ class Painter extends StatelessWidget {
             isDragging = true;
           }
         }
-      } else {
-        drawingController.deselectContent();
-      }
-    } else {
-      selectedContent =
-          drawingController.getContentAtPosition(pde.localPosition);
-      if (selectedContent != null) {
-        drawingController.selectContent(selectedContent!);
-      } else {
-        drawingController.deselectContent();
-        drawingController.setPaintContent(drawingController.lastSelected);
-        onPointerDown?.call(pde);
-        return;
       }
     }
-
     if (!drawingController.couldDraw) {
       onPointerDown?.call(pde);
       return;
