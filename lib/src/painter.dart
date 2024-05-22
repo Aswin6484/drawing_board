@@ -74,20 +74,18 @@ class Painter extends StatelessWidget {
         drawingController.selectContent(selectedContent!);
       } else {
         drawingController.deselectContent();
-      }
-    }
-    if (!drawingController.couldDraw) {
-      return;
-    }
-
-    Future<void>.delayed(const Duration(milliseconds: 50), () {
-      if (!drawingController.couldDraw) {
+        drawingController.setPaintContent(drawingController.lastSelected);
+        onPointerDown?.call(pde);
         return;
       }
+    }
 
-      drawingController.startDraw(pde.localPosition);
+    if (!drawingController.couldDraw) {
       onPointerDown?.call(pde);
-    });
+      return;
+    }
+    drawingController.startDraw(pde.localPosition);
+    onPointerDown?.call(pde);
   }
 
   /// 手指移动
@@ -234,6 +232,7 @@ class _DeepPainter extends CustomPainter {
     final List<PaintContent> contents = controller.getHistory;
 
     if (contents.isEmpty) {
+      controller.drawGrid(canvas);
       return;
     }
 
@@ -242,7 +241,7 @@ class _DeepPainter extends CustomPainter {
     for (int i = 0; i < controller.currentIndex; i++) {
       contents[i].draw(canvas, size, true);
     }
-
+    controller.drawGrid(canvas);
     canvas.restore();
   }
 

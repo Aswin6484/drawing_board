@@ -109,8 +109,7 @@ class DrawingBoard extends StatefulWidget {
       DefToolItem(
           isActive: currType == TextPaint,
           icon: CupertinoIcons.pencil_ellipsis_rectangle,
-          onTap: () => controller
-              .setPaintContent(TextPaint(controller, DateTime.now()))),
+          onTap: () => controller.setPaintContent(TextPaint())),
       DefToolItem(
           isActive: currType == Circle,
           icon: CupertinoIcons.circle,
@@ -359,6 +358,57 @@ class _DrawingBoardState extends State<DrawingBoard> {
             IconButton(
                 icon: const Icon(CupertinoIcons.trash),
                 onPressed: () => controller.clear()),
+            SizedBox(
+                height: 24,
+                width: 160,
+                child: Slider(
+                  value: controller.gridWidthSpace.toDouble(),
+                  max: 500,
+                  min: 10,
+                  onChanged: (double v) => controller.gridUpdate(
+                      v.toInt(), controller.gridHeightSpace),
+                )),
+            SizedBox(
+                height: 24,
+                width: 160,
+                child: Slider(
+                  value: controller.gridHeightSpace.toDouble(),
+                  max: 500,
+                  min: 10,
+                  onChanged: (double v) => controller.gridUpdate(
+                      controller.gridWidthSpace, v.toInt()),
+                )),
+            if (controller.currentContent != null &&
+                controller.currentContent!.runtimeType == TextPaint)
+              SizedBox(
+                  height: 24,
+                  width: 160,
+                  child: Slider(
+                    value: (controller.currentContent! as TextPaint)
+                        .fontSize
+                        .toDouble(),
+                    max: 60,
+                    min: 10,
+                    onChanged: (double v) =>
+                        (controller.currentContent! as TextPaint)
+                            .fontUpdate(v.toInt()),
+                  )),
+            if (controller.currentContent != null &&
+                controller.currentContent!.runtimeType == TextPaint)
+              SizedBox(
+                  height: 24,
+                  width: 160,
+                  child: Slider(
+                    value: (controller.currentContent! as TextPaint)
+                        .fontSize
+                        .toDouble(),
+                    max: 255,
+                    min: 10,
+                    onChanged: (double v) =>
+                        (controller.currentContent! as TextPaint)
+                            .fontColorUpdate(
+                                Color.fromARGB(255, v.toInt(), 255, 255)),
+                  )),
           ],
         ),
       ),

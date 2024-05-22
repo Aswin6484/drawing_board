@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -28,6 +27,7 @@ class Arrow extends PaintContent {
   double _rotation = 0.0;
 
   double get rotation => _rotation;
+  double selectionCircleRadius = 6.0;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
 
@@ -152,9 +152,9 @@ class Arrow extends PaintContent {
   @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()
-      ..color = Colors.grey
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
 
     canvas.drawCircle(startPoint, selectionCircleRadius, selectionPaint);
     canvas.drawCircle(endPoint, selectionCircleRadius, selectionPaint);

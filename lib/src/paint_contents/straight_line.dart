@@ -30,9 +30,9 @@ class StraightLine extends PaintContent {
   double _rotation = 0.0;
 
   double get rotation => _rotation;
+  double circleRadius = 6.0;
   Offset? startPoint;
   Offset? endPoint;
-  double circleRadius = 6.0;
   @override
   Offset? getAnchorPoint() => startPoint;
 
@@ -185,7 +185,6 @@ class StraightLine extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
-
   @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()

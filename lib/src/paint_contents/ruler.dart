@@ -217,12 +217,12 @@ class Ruler extends PaintContent {
 
   @override
   void drawSelection(Canvas canvas) {
-    final Paint paint = Paint()
-      ..color = Colors.grey
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    canvas.drawCircle(startPoint, 6.0, paint);
-    canvas.drawCircle(endPoint, 6.0, paint);
+    final Paint selectionPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 1;
+    canvas.drawCircle(startPoint, 6.0, selectionPaint);
+    canvas.drawCircle(endPoint, 6.0, selectionPaint);
   }
 
   @override

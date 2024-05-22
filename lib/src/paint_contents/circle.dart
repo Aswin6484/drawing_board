@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
 
@@ -38,6 +37,11 @@ class Circle extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
+  Offset top = Offset.zero;
+  Offset bottom = Offset.zero;
+  Offset left = Offset.zero;
+  Offset right = Offset.zero;
+  double circleRadius = 6.0;
 
   /// 是否为椭圆
   final bool isEllipse;
@@ -53,11 +57,6 @@ class Circle extends PaintContent {
   double _rotation = 0.0;
 
   double get rotation => _rotation;
-  Offset top = Offset.zero;
-  Offset bottom = Offset.zero;
-  Offset left = Offset.zero;
-  Offset right = Offset.zero;
-  double circleRadius = 6.0;
 
   /// 起始点
   Offset startPoint = Offset.zero;

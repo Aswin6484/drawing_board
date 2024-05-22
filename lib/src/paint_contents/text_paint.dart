@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../flutter_drawing_board.dart';
 import '../../paint_extension.dart';
 import 'paint_content.dart';
 
 class TextPaint extends PaintContent {
-  TextPaint(this._controller, DateTime? timestamp)
+  TextPaint({DateTime? timestamp})
       : super(timestamp: timestamp ?? DateTime.now());
 
   TextPaint.data(
@@ -48,9 +47,17 @@ class TextPaint extends PaintContent {
   Offset position = Offset.zero;
   String text = '';
   String uiText = '';
-  Color textColor = Colors.black;
+  Color textColor = Colors.white;
   int fontSize = 30;
   bool isPipe = true;
+
+  void fontUpdate(int fnt) {
+    fontSize = fnt;
+  }
+
+  void fontColorUpdate(Color colr) {
+    textColor = colr;
+  }
 
   @override
   Offset getAnchorPoint() => position;
@@ -63,24 +70,12 @@ class TextPaint extends PaintContent {
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;
-    // HardwareKeyboard.instance.addHandler(_handleKey);
   }
 
   @override
   void editDrawing(Offset nowPoint) {
     // TODO: implement editDrawing
   }
-
-  // bool _handleKey(KeyEvent event) {
-  //   if (event is KeyDownEvent) {
-  //     final LogicalKeyboardKey logicalKey = event.logicalKey;
-  //     if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
-  //       text += event.character!;
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   @override
   void drawing(Offset nowPoint) {
@@ -110,14 +105,14 @@ class TextPaint extends PaintContent {
     );
     textPainter.layout();
     final Offset textPosition = Offset(
-      position.dx - textPainter.height / 2,
-      position.dy - textPainter.height / 2,
-    );
+        position.dx, //- textPainter.height / 2,
+        position.dy //- textPainter.height / 2,
+        );
     textPainter.paint(canvas, textPosition);
   }
 
   @override
-  TextPaint copy() => TextPaint(_controller, timestamp);
+  TextPaint copy() => TextPaint();
 
   @override
   Map<String, dynamic> toContentJson() {
@@ -146,12 +141,12 @@ class TextPaint extends PaintContent {
 
     final Rect textBounds = Rect.fromPoints(
       Offset(
-        position.dx - textPainter.height / 2,
-        position.dy - textPainter.height / 2,
-      ),
+          position.dx, // - textPainter.height / 2,
+          position.dy // - textPainter.height / 2,
+          ),
       Offset(
-        position.dx + textPainter.width + textPainter.height / 2,
-        position.dy + textPainter.height / 2,
+        position.dx + textPainter.width,
+        position.dy + textPainter.height,
       ),
     );
 
@@ -172,12 +167,12 @@ class TextPaint extends PaintContent {
 
     final Rect textBounds = Rect.fromPoints(
       Offset(
-        position.dx - textPainter.height / 2,
-        position.dy - textPainter.height / 2,
-      ),
+          position.dx, // - textPainter.height / 2,
+          position.dy //- textPainter.height / 2,
+          ),
       Offset(
-        position.dx + textPainter.width + textPainter.height / 2,
-        position.dy + textPainter.height / 2,
+        position.dx + textPainter.width,
+        position.dy + textPainter.height,
       ),
     );
 

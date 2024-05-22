@@ -2,9 +2,14 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import '../paint_contents.dart';
 import 'helper/safe_value_notifier.dart';
 
@@ -209,6 +214,83 @@ class DrawingController extends ChangeNotifier {
   static String text = "";
   bool isHandlerAdded = false;
 
+  /// Grid on or off
+  bool isGridOn = true;
+  int gridWidthSpace = 100;
+  int gridHeightSpace = 50;
+  Paint gridPaint = Paint()
+    ..color = ui.Color.fromARGB(255, 149, 255, 49)
+    ..isAntiAlias = true
+    ..strokeWidth = 1;
+
+  void gridUpdate(int width, int height) {
+    gridWidthSpace = width;
+    gridHeightSpace = height;
+
+    refresh();
+  }
+
+  void updateSelectedContentColor(Color newColor) {
+    if (_selectedContent != null) {
+      drawConfig.value = drawConfig.value.copyWith(color: newColor);
+      _selectedContent!.paint.color = newColor;
+      refresh();
+    }
+  }
+
+  void changeGrid() {
+    isGridOn = !isGridOn;
+    refresh();
+  }
+
+  drawGrid(Canvas canvas) {
+    if (isGridOn && drawConfig.value.size != null) {
+      var wid = drawConfig.value.size!.width;
+      var hei = drawConfig.value.size!.height;
+      for (int i = 0; i < wid; i += gridWidthSpace) {
+        _drawDashedLine(
+            canvas, Offset(i.toDouble(), 0), Offset(i.toDouble(), hei));
+      }
+
+      for (int i = 0; i < hei; i += gridHeightSpace) {
+        _drawDashedLine(
+            canvas, Offset(0, i.toDouble()), Offset(wid, i.toDouble()));
+      }
+    }
+  }
+
+  void _drawDashedLine(Canvas canvas, Offset startPoint, Offset endPoint) {
+    const int dashLength = 10;
+    const double dashRatio = 0.5;
+
+    final double totalDistance = sqrt(pow(endPoint.dx - startPoint.dx, 2) +
+        pow(endPoint.dy - startPoint.dy, 2));
+
+    const double actualDashLength = dashLength * dashRatio;
+    const double gapLength = dashLength - actualDashLength;
+
+    final dx = (endPoint.dx - startPoint.dx) / totalDistance;
+    final dy = (endPoint.dy - startPoint.dy) / totalDistance;
+
+    double currentX = startPoint.dx;
+    double currentY = startPoint.dy;
+    double remainingDistance = totalDistance;
+
+    while (remainingDistance > 0) {
+      final double endX =
+          currentX + dx * min(actualDashLength, remainingDistance);
+      final double endY =
+          currentY + dy * min(actualDashLength, remainingDistance);
+
+      canvas.drawLine(
+          Offset(currentX, currentY), Offset(endX, endY), gridPaint);
+
+      remainingDistance -= actualDashLength + gapLength;
+      currentX = endX + dx * gapLength;
+      currentY = endY + dy * gapLength;
+    }
+  }
+
   /// 设置画板大小
   void setBoardSize(Size? size) {
     drawConfig.value = drawConfig.value.copyWith(size: size);
@@ -264,26 +346,17 @@ class DrawingController extends ChangeNotifier {
     );
   }
 
+  late PaintContent lastSelected;
+
   /// 设置绘制内容
   void setPaintContent(PaintContent content) {
+    if (content.runtimeType != EmptyContent) {
+      lastSelected = content;
+    }
     content.paint = drawConfig.value.paint;
     _paintContent = content;
-    PaintContent.selectedTimestamp = content.timestamp;
     drawConfig.value =
         drawConfig.value.copyWith(contentType: content.runtimeType);
-
-    callBack = content.updateUI;
-
-    if (isHandlerAdded) {
-      HardwareKeyboard.instance.removeHandler(_handleKey);
-      isHandlerAdded = false;
-    }
-
-    if (content.runtimeType == TextPaint) {
-      text = (content as TextPaint).text;
-      isHandlerAdded = true;
-      HardwareKeyboard.instance.addHandler(_handleKey);
-    }
   }
 
   bool _handleKey(KeyEvent event) {
@@ -311,9 +384,9 @@ class DrawingController extends ChangeNotifier {
   }
 
   void runTimer() {
-    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      print("Inside timer");
-      for (final scene in _history) {
+    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
+      print("sdfsdfsdf");
+      for (final PaintContent scene in _history) {
         if (scene.timestamp == PaintContent.selectedTimestamp) {
           callBack = scene.updateUI;
           callBack!.call();
@@ -352,6 +425,19 @@ class DrawingController extends ChangeNotifier {
     bounds = Rect.fromLTRB(
         startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy);
 // Store the current content as the last drawn content
+    PaintContent.selectedTimestamp = currentContent!.timestamp;
+    callBack = currentContent!.updateUI;
+
+    if (isHandlerAdded) {
+      HardwareKeyboard.instance.removeHandler(_handleKey);
+      isHandlerAdded = false;
+    }
+
+    if (currentContent.runtimeType == TextPaint) {
+      text = (currentContent! as TextPaint).text;
+      isHandlerAdded = true;
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    }
   }
 
   /// 取消绘制
@@ -383,9 +469,16 @@ class DrawingController extends ChangeNotifier {
     }
 
     if (currentContent != null) {
-      _history.add(currentContent!);
-      _currentIndex = _history.length;
-      currentContent = null;
+      if (_history.indexWhere(
+              (element) => element.timestamp == currentContent!.timestamp) ==
+          -1) {
+        _history.add(currentContent!);
+        _currentIndex = _history.length;
+      }
+
+      if (currentContent!.runtimeType != TextPaint) {
+        currentContent = null;
+      }
     }
 
     // Update bounds to fit the current content
@@ -412,6 +505,7 @@ class DrawingController extends ChangeNotifier {
       _selectedContent!.isSelected = false;
     }
     _selectedContent = content;
+    currentContent = content;
     PaintContent.selectedTimestamp = content.timestamp;
     callBack = content.updateUI;
     if (isHandlerAdded) {
@@ -433,6 +527,7 @@ class DrawingController extends ChangeNotifier {
     if (_selectedContent != null) {
       _selectedContent!.isSelected = false;
       _selectedContent = null;
+      currentContent = null;
       PaintContent.selectedTimestamp = null;
       callBack = null;
 
