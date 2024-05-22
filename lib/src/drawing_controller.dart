@@ -211,7 +211,7 @@ class DrawingController extends ChangeNotifier {
 
   Timer? _timer;
   Function? callBack;
-  static String text = "";
+  //String text = "";
   bool isHandlerAdded = false;
 
   /// Grid on or off
@@ -363,13 +363,17 @@ class DrawingController extends ChangeNotifier {
     if (event is KeyDownEvent) {
       final LogicalKeyboardKey logicalKey = event.logicalKey;
       if (logicalKey == LogicalKeyboardKey.enter) {
-        text += '\n';
+        (currentContent! as TextPaint)
+            .updateText('${(currentContent! as TextPaint).text}\n');
         return true;
       } else if (logicalKey == LogicalKeyboardKey.backspace) {
-        text = text.substring(0, text.length - 1);
+        (currentContent! as TextPaint).updateText((currentContent! as TextPaint)
+            .text
+            .substring(0, (currentContent! as TextPaint).text.length - 1));
         return true;
       } else if (logicalKey.keyLabel.isNotEmpty && event.character != null) {
-        text += event.character!;
+        (currentContent! as TextPaint).updateText(
+            '${(currentContent! as TextPaint).text}${event.character!}');
         return true;
       }
     }
@@ -385,7 +389,6 @@ class DrawingController extends ChangeNotifier {
 
   void runTimer() {
     _timer ??= Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
-      print("sdfsdfsdf");
       for (final PaintContent scene in _history) {
         if (scene.timestamp == PaintContent.selectedTimestamp) {
           callBack = scene.updateUI;
@@ -434,7 +437,6 @@ class DrawingController extends ChangeNotifier {
     }
 
     if (currentContent.runtimeType == TextPaint) {
-      text = (currentContent! as TextPaint).text;
       isHandlerAdded = true;
       HardwareKeyboard.instance.addHandler(_handleKey);
     }
@@ -514,7 +516,6 @@ class DrawingController extends ChangeNotifier {
     }
 
     if (content.runtimeType == TextPaint) {
-      text = (content as TextPaint).text;
       isHandlerAdded = true;
       HardwareKeyboard.instance.addHandler(_handleKey);
     }

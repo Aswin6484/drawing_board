@@ -34,7 +34,7 @@ class TextPaint extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
-  late DrawingController _controller;
+
   double _rotation = 0.0;
 
   double get rotation => _rotation;
@@ -186,7 +186,6 @@ class TextPaint extends PaintContent {
   @override
   void updateUI() {
     if (timestamp == PaintContent.selectedTimestamp) {
-      updateText(DrawingController.text);
       curserTimer += 1;
       if (curserTimer == 3) {
         curserTimer = 0;
