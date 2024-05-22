@@ -50,7 +50,33 @@ class EmptyContent extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
+  @override
+  void rotate(double angle) {
+    // TODO: implement rotate
+  }
+
+  @override
   void drawSelection(Canvas canvas) {
     // TODO: implement drawSelection
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    // TODO: implement isTapOnSelectionCircle
+    throw UnimplementedError();
+  }
+
+  @override
+  void updatedragposition(Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }

@@ -34,6 +34,10 @@ class TextPaint extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
+  late DrawingController _controller;
+  double _rotation = 0.0;
+
+  double get rotation => _rotation;
   static const int dashWidth = 4;
   static const int dashSpace = 4;
   late Canvas _canvas;
@@ -66,6 +70,11 @@ class TextPaint extends PaintContent {
   @override
   void startDraw(Offset startPoint) {
     position = startPoint;
+  }
+
+  @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
   }
 
   @override
@@ -188,15 +197,22 @@ class TextPaint extends PaintContent {
 
   @override
   void drawSelection(Canvas canvas) {
-    final Paint selectionPaint = Paint()
-      ..color = Colors.grey
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+    // TODO: implement drawSelection
+  }
 
-    // Get the bounds of the text
-    final Rect textBounds = bounds;
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    // TODO: implement isTapOnSelectionCircle
+    throw UnimplementedError();
+  }
 
-    // Draw a rectangle around the text
-    canvas.drawRect(textBounds, selectionPaint);
+  @override
+  void updatedragposition(Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }

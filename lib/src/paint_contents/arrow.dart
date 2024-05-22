@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -25,6 +24,9 @@ class Arrow extends PaintContent {
 
   static const int dashWidth = 4;
   static const int dashSpace = 4;
+  double _rotation = 0.0;
+
+  double get rotation => _rotation;
   double selectionCircleRadius = 6.0;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
@@ -39,23 +41,37 @@ class Arrow extends PaintContent {
 
   @override
   void draw(Canvas canvas, Size size, bool deeper) {
-    final dX = endPoint.dx - startPoint.dx;
-    final dY = endPoint.dy - startPoint.dy;
-    final angle = atan2(dY, dX);
+    final double dX = endPoint.dx - startPoint.dx;
+    final double dY = endPoint.dy - startPoint.dy;
+    final double angle = atan2(dY, dX);
 
-    const arrowAngle = 25 * pi / 180;
-    const arrowSize = 15;
+    const double arrowAngle = 25 * pi / 180;
+    const double arrowSize = 15;
 
-    final path = Path();
-    path.moveTo(endPoint.dx - arrowSize * cos(angle - arrowAngle),
-        endPoint.dy - arrowSize * sin(angle - arrowAngle));
-    path.lineTo(endPoint.dx, endPoint.dy);
-    path.lineTo(endPoint.dx - arrowSize * cos(angle + arrowAngle),
-        endPoint.dy - arrowSize * sin(angle + arrowAngle));
+    // Save the current state of the canvas
+    canvas.save();
+
+    // Translate the canvas so the startPoint is the origin of rotation
+    canvas.translate(startPoint.dx, startPoint.dy);
+
+    // Rotate the canvas around the origin (which is now at the startPoint)
+    canvas.rotate(rotation * pi / 180);
+
+    // Draw the line from startPoint to endPoint
+    canvas.drawLine(Offset.zero, Offset(dX, dY), paint);
+
+    // Draw the arrow head
+    final Path path = Path();
+    path.moveTo(dX - arrowSize * cos(angle - arrowAngle),
+        dY - arrowSize * sin(angle - arrowAngle));
+    path.lineTo(dX, dY);
+    path.lineTo(dX - arrowSize * cos(angle + arrowAngle),
+        dY - arrowSize * sin(angle + arrowAngle));
     path.close();
-
-    canvas.drawLine(startPoint, endPoint, paint);
     canvas.drawPath(path, paint);
+
+    // Restore the canvas to its previous state
+    canvas.restore();
   }
 
   @override
@@ -117,8 +133,15 @@ class Arrow extends PaintContent {
   @override
   void updatePosition(Offset newPosition) {
     final Offset delta = newPosition - startPoint;
-    startPoint = newPosition;
     endPoint = endPoint + delta;
+
+    // Calculate the rotation based on the movement of the endpoint
+    final double dX = endPoint.dx - startPoint.dx;
+    final double dY = endPoint.dy - startPoint.dy;
+    final double angle = atan2(dY, dX);
+
+    // Update rotation of the arrow
+    _rotation = angle;
   }
 
   @override
@@ -135,5 +158,31 @@ class Arrow extends PaintContent {
 
     canvas.drawCircle(startPoint, selectionCircleRadius, selectionPaint);
     canvas.drawCircle(endPoint, selectionCircleRadius, selectionPaint);
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    return (tapOffset - startPoint).distance <= selectionCircleRadius ||
+        (tapOffset - endPoint).distance <= selectionCircleRadius;
+  }
+
+  @override
+  void updatedragposition(Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
+  }
+
+  @override
+  void editDrawing(Offset nowPoint) {
+    if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
+      startPoint = endPoint;
+      endPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
   }
 }

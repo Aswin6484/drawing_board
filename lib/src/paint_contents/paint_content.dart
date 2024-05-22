@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -13,8 +11,8 @@ abstract class PaintContent {
 
   final DateTime timestamp;
   Offset position = Offset.zero;
-
   static DateTime? selectedTimestamp;
+  double selectionCircleRadius = 6.0;
 
   /// 画笔
   late Paint paint;
@@ -33,6 +31,8 @@ abstract class PaintContent {
   /// 正在绘制
   void drawing(Offset nowPoint);
 
+  void editDrawing(Offset nowPoint);
+
   /// 开始绘制
   void startDraw(Offset startPoint);
 
@@ -41,8 +41,10 @@ abstract class PaintContent {
   void updatePosition(Offset newPosition);
   void updateUI();
   void drawSelection(Canvas canvas);
-
   Rect get bounds;
+  bool isTapOnSelectionCircle(Offset tapOffset);
+  void updatedragposition(Offset newPosition);
+  void updateScale(Offset position);
 
   /// toJson
   Map<String, dynamic> toContentJson();

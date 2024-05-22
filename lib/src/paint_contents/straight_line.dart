@@ -1,5 +1,5 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
 
@@ -27,6 +27,9 @@ class StraightLine extends PaintContent {
       timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int),
     );
   }
+  double _rotation = 0.0;
+
+  double get rotation => _rotation;
   double circleRadius = 6.0;
   Offset? startPoint;
   Offset? endPoint;
@@ -35,11 +38,19 @@ class StraightLine extends PaintContent {
 
   @override
   void updatePosition(Offset newPosition) {
-    final Offset delta = newPosition - startPoint!;
-    startPoint = newPosition;
-    if (endPoint != null) {
-      endPoint = endPoint! + delta;
+    if (startPoint == null) {
+      startPoint = newPosition;
+      endPoint = newPosition;
+      return;
     }
+
+    if (endPoint == null) {
+      endPoint = newPosition;
+      return;
+    }
+
+    final Offset delta = newPosition - endPoint!;
+    endPoint = endPoint! + delta;
   }
 
   @override
@@ -49,12 +60,64 @@ class StraightLine extends PaintContent {
   void drawing(Offset nowPoint) => endPoint = nowPoint;
 
   @override
+  void editDrawing(Offset nowPoint) {
+    if ((nowPoint - startPoint!).distance <= selectionCircleRadius) {
+      startPoint = endPoint;
+      endPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
+  }
+
+  @override
   void draw(Canvas canvas, Size size, bool deeper) {
     if (startPoint == null || endPoint == null) {
       return;
     }
 
-    canvas.drawLine(startPoint!, endPoint!, paint);
+    // Calculate the midpoint for rotation
+    final Offset midpoint = Offset(
+      (startPoint!.dx + endPoint!.dx) / 2,
+      (startPoint!.dy + endPoint!.dy) / 2,
+    );
+
+    // Save the current state of the canvas
+    canvas.save();
+
+    // Translate the canvas so the midpoint is the origin of rotation
+    canvas.translate(midpoint.dx, midpoint.dy);
+
+    // Rotate the canvas around the origin (which is now at the midpoint)
+    canvas.rotate(_rotation * pi / 180);
+
+    // Translate back after rotation
+    canvas.translate(-midpoint.dx, -midpoint.dy);
+
+    // Translate the endPoint so the midpoint is at the origin
+    final Offset translatedEndPoint = Offset(
+      endPoint!.dx - midpoint.dx,
+      endPoint!.dy - midpoint.dy,
+    );
+
+    // Rotate the translated endPoint
+    final Offset rotatedEndPoint = Offset(
+      translatedEndPoint.dx * cos(_rotation * pi / 180) -
+          translatedEndPoint.dy * sin(_rotation * pi / 180),
+      translatedEndPoint.dx * sin(_rotation * pi / 180) +
+          translatedEndPoint.dy * cos(_rotation * pi / 180),
+    );
+
+    // Translate the rotatedEndPoint back to its original position
+    final Offset finalEndPoint = Offset(
+      rotatedEndPoint.dx + midpoint.dx,
+      rotatedEndPoint.dy + midpoint.dy,
+    );
+
+    // Draw the line from startPoint to finalEndPoint
+    canvas.drawLine(startPoint!, finalEndPoint, paint);
+
+    // Restore the canvas to its previous state
+    canvas.restore();
   }
 
   @override
@@ -135,5 +198,33 @@ class StraightLine extends PaintContent {
     if (endPoint != null) {
       canvas.drawCircle(endPoint!, circleRadius, selectionPaint);
     }
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    if (startPoint == null || endPoint == null) {
+      return false;
+    }
+
+    final bool isNearStartPoint =
+        (tapOffset - startPoint!).distance <= circleRadius;
+    final bool isNearEndPoint =
+        (tapOffset - endPoint!).distance <= circleRadius;
+
+    return isNearStartPoint || isNearEndPoint;
+  }
+
+  @override
+  void updatedragposition(Offset newPosition) {
+    final Offset delta = newPosition - startPoint!;
+    startPoint = newPosition;
+    if (endPoint != null) {
+      endPoint = endPoint! + delta;
+    }
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }

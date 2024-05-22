@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import '../paint_extension/ex_offset.dart';
 import '../paint_extension/ex_paint.dart';
 
@@ -55,6 +54,9 @@ class Circle extends PaintContent {
 
   /// 半径
   double radius = 0;
+  double _rotation = 0.0;
+
+  double get rotation => _rotation;
 
   /// 起始点
   Offset startPoint = Offset.zero;
@@ -66,11 +68,33 @@ class Circle extends PaintContent {
   Offset getAnchorPoint() => center;
 
   @override
-  void updatePosition(Offset newPosition) {
+  void updatedragposition(Offset newPosition) {
     final Offset delta = newPosition - center;
     startPoint += delta;
     endPoint += delta;
     center = newPosition;
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // Calculate the new radius based on the distance from the center
+    radius = (position - center).distance;
+    // Adjust startPoint and endPoint accordingly
+    startPoint = center - Offset(radius, radius);
+    endPoint = center + Offset(radius, radius);
+  }
+
+  @override
+  void updatePosition(Offset newPosition) {
+    final Offset delta = newPosition - startPoint;
+    endPoint = endPoint + delta;
+
+    // Calculate the rotation based on the movement of the endpoint
+    final double dX = endPoint.dx - startPoint.dx;
+    final double dY = endPoint.dy - startPoint.dy;
+    final double angle = atan2(dY, dX);
+    // Update rotation of the ellipse
+    _rotation = angle;
   }
 
   @override
@@ -89,11 +113,34 @@ class Circle extends PaintContent {
 
   @override
   void draw(Canvas canvas, Size size, bool deeper) {
+    // Calculate the midpoint for rotation
+    final Offset midpoint = Offset(
+      (startPoint.dx + endPoint.dx) / 2,
+      (startPoint.dy + endPoint.dy) / 2,
+    );
+
+    // Save the current state of the canvas
+    canvas.save();
+
+    // Translate the canvas so the midpoint is the origin of rotation
+    canvas.translate(midpoint.dx, midpoint.dy);
+
+    // Rotate the canvas around the origin (which is now at the midpoint)
+    canvas.rotate(_rotation * pi / 180);
+
+    // Translate back after rotation
+    canvas.translate(-midpoint.dx, -midpoint.dy);
+
     if (isEllipse) {
+      // Draw the rotated ellipse
       canvas.drawOval(Rect.fromPoints(startPoint, endPoint), paint);
     } else {
+      // Draw the rotated circle
       canvas.drawCircle(startFromCenter ? startPoint : center, radius, paint);
     }
+
+    // Restore the canvas to its previous state
+    canvas.restore();
   }
 
   @override
@@ -137,12 +184,21 @@ class Circle extends PaintContent {
   }
 
   @override
-  Rect get bounds => Rect.fromCircle(center: center, radius: radius);
+  Rect get bounds {
+    final double radius = (endPoint - startPoint).distance / 2;
+    return Rect.fromCircle(center: center, radius: radius);
+  }
 
   @override
   void updateUI() {
     // TODO: implement updateUI
   }
+
+  @override
+  void editDrawing(Offset nowPoint) {
+    // TODO: implement editDrawing
+  }
+
   @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()
@@ -165,5 +221,13 @@ class Circle extends PaintContent {
     canvas.drawCircle(bottom, circleRadius, selectionPaint);
     canvas.drawCircle(left, circleRadius, selectionPaint);
     canvas.drawCircle(right, circleRadius, selectionPaint);
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    return (tapOffset - top).distance <= circleRadius + 5 ||
+        (tapOffset - bottom).distance <= circleRadius + 5 ||
+        (tapOffset - right).distance <= circleRadius + 5 ||
+        (tapOffset - left).distance <= circleRadius + 5;
   }
 }

@@ -28,16 +28,27 @@ class Ruler extends PaintContent {
 
   static const int dashWidth = 4;
   static const int dashSpace = 4;
+  double _rotation = 0.0;
 
+  double get rotation => _rotation;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
 
+  @override
   Offset getAnchorPoint() => startPoint;
 
+  @override
   void updatePosition(Offset newPosition) {
     final Offset delta = newPosition - startPoint;
-    startPoint = newPosition;
     endPoint = endPoint + delta;
+
+    // Calculate the rotation based on the movement of the endpoint
+    final double dX = endPoint.dx - startPoint.dx;
+    final double dY = endPoint.dy - startPoint.dy;
+    final double angle = atan2(dY, dX);
+
+    // Update rotation of the arrow
+    _rotation = angle;
   }
 
   @override
@@ -49,8 +60,39 @@ class Ruler extends PaintContent {
   }
 
   @override
+  void editDrawing(Offset nowPoint) {
+    if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
+      startPoint = endPoint;
+      endPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
+  }
+
+  @override
   void draw(Canvas canvas, Size size, bool deeper) {
+    // Calculate the midpoint for rotation
+    final Offset midpoint = Offset(
+      (startPoint.dx + endPoint.dx) / 2,
+      (startPoint.dy + endPoint.dy) / 2,
+    );
+
+    // Save the current state of the canvas
+    canvas.save();
+
+    // Translate the canvas so the midpoint is the origin of rotation
+    canvas.translate(midpoint.dx, midpoint.dy);
+
+    // Rotate the canvas around the origin (which is now at the midpoint)
+    canvas.rotate(_rotation * pi / 180);
+
+    // Translate back after rotation
+    canvas.translate(-midpoint.dx, -midpoint.dy);
+
     _drawDashedLine(canvas, size, paint);
+
+    // Restore the canvas to its previous state
+    canvas.restore();
   }
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
@@ -78,7 +120,7 @@ class Ruler extends PaintContent {
 
       canvas.drawLine(Offset(currentX, currentY), Offset(endX, endY), paint);
 
-      remainingDistance -= (actualDashLength + gapLength);
+      remainingDistance -= actualDashLength + gapLength;
       currentX = endX + dx * gapLength;
       currentY = endY + dy * gapLength;
     }
@@ -87,7 +129,7 @@ class Ruler extends PaintContent {
     final double middleX = (startPoint.dx + endPoint.dx) / 2;
     final double middleY = (startPoint.dy + endPoint.dy) / 2;
 
-    String text = "Len: ${totalDistance.toStringAsFixed(2)}";
+    final String text = 'Len: ${totalDistance.toStringAsFixed(2)}';
 
     final textPainter = TextPainter(
       text: TextSpan(text: text, style: TextStyle(color: paint.color)),
@@ -172,6 +214,7 @@ class Ruler extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+
   @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()
@@ -180,5 +223,21 @@ class Ruler extends PaintContent {
       ..strokeWidth = 1;
     canvas.drawCircle(startPoint, 6.0, selectionPaint);
     canvas.drawCircle(endPoint, 6.0, selectionPaint);
+  }
+
+  @override
+  bool isTapOnSelectionCircle(Offset tapOffset) {
+    return (tapOffset - startPoint).distance <= selectionCircleRadius ||
+        (tapOffset - endPoint).distance <= selectionCircleRadius;
+  }
+
+  @override
+  void updatedragposition(Offset newPosition) {
+    // TODO: implement updatedragposition
+  }
+
+  @override
+  void updateScale(Offset position) {
+    // TODO: implement updateScale
   }
 }

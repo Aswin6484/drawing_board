@@ -6,7 +6,7 @@ import 'helper/ex_value_builder.dart';
 
 /// 绘图板
 class Painter extends StatelessWidget {
-  const Painter(
+  Painter(
       {super.key,
       required this.drawingController,
       this.clipBehavior = Clip.antiAlias,
@@ -32,15 +32,47 @@ class Painter extends StatelessWidget {
 
   /// 边缘裁剪方式
   final Clip clipBehavior;
+  PaintContent? selectedContent;
+  bool isDragging = false;
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
-    final PaintContent? content =
-        drawingController.getContentAtPosition(pde.localPosition);
-    if (content != null) {
-      drawingController.selectContent(content);
+    selectedContent = drawingController.selectedContent;
+
+    // first check anything is selected
+    // if selected check click on main circles.
+    // if change
+
+    if (selectedContent != null) {
+      selectedContent =
+          drawingController.getContentAtPosition(pde.localPosition);
+      if (selectedContent != null) {
+        drawingController.selectContent(selectedContent!);
+        if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
+          // logic change
+          isDragging = false;
+          selectedContent!.editDrawing(pde.localPosition);
+        } else {
+          final Offset touchPosition = pde.localPosition;
+          final PaintContent? content =
+              drawingController.getContentAtPosition(pde.localPosition);
+          if (content != null &&
+              !content.isTapOnSelectionCircle(pde.localPosition)) {
+            drawingController.draggingContent = content;
+            drawingController.draggingOffset =
+                touchPosition - content.getAnchorPoint()!;
+            isDragging = true;
+          }
+        }
+      } else {
+        drawingController.deselectContent();
+      }
     } else {
-      if (drawingController.selectedContent != null) {
+      selectedContent =
+          drawingController.getContentAtPosition(pde.localPosition);
+      if (selectedContent != null) {
+        drawingController.selectContent(selectedContent!);
+      } else {
         drawingController.deselectContent();
         drawingController.setPaintContent(drawingController.lastSelected);
         onPointerDown?.call(pde);
@@ -59,18 +91,36 @@ class Painter extends StatelessWidget {
   /// 手指移动
   void _onPointerMove(PointerMoveEvent pme) {
     if (!drawingController.couldDraw) {
-      if (drawingController.currentContent != null) {
+      if (drawingController.selectedContent != null) {
         drawingController.endDraw();
+
+        // Check if we are dragging content
+        if (isDragging) {
+          if (drawingController.draggingContent != null &&
+              drawingController.draggingOffset != null) {
+            final Offset newPosition =
+                pme.localPosition - drawingController.draggingOffset!;
+
+            // Update position of dragging content
+            drawingController.draggingContent!.updatedragposition(newPosition);
+          }
+        } else {
+          // Update the position of the selected content
+          selectedContent!.updatePosition(pme.localPosition);
+          selectedContent!.drawing(pme.localPosition);
+        }
       }
       return;
     }
 
+    // If in drawing mode, update the drawing
     drawingController.drawing(pme.localPosition);
     onPointerMove?.call(pme);
   }
 
   /// 手指抬起
   void _onPointerUp(PointerUpEvent pue) {
+    isDragging = false;
     if (!drawingController.couldDraw ||
         drawingController.currentContent == null) {
       return;
@@ -79,7 +129,6 @@ class Painter extends StatelessWidget {
     if (drawingController.startPoint == pue.localPosition) {
       drawingController.drawing(pue.localPosition);
     }
-
     drawingController.endDraw();
     onPointerUp?.call(pue);
   }
@@ -88,7 +137,8 @@ class Painter extends StatelessWidget {
     if (!drawingController.couldDraw) {
       return;
     }
-
+    drawingController.draggingContent = null;
+    drawingController.draggingOffset = null;
     drawingController.endDraw();
   }
 
@@ -96,7 +146,7 @@ class Painter extends StatelessWidget {
   void _onPanDown(DragDownDetails ddd) {}
 
   void _onPanUpdate(DragUpdateDetails dud) {
-    //onPanUpdate?.call(10, 20);
+    // onPanUpdate?.call(10, 20);
   }
 
   void _onPanEnd(DragEndDetails ded) {}
@@ -114,11 +164,19 @@ class Painter extends StatelessWidget {
             p.fingerCount != n.fingerCount,
         builder: (_, DrawConfig config, Widget? child) {
           return GestureDetector(
-            onPanDown: drawingController.couldDraw ? _onPanDown : null,
-            onPanUpdate: drawingController.couldDraw ? _onPanUpdate : null,
-            onPanEnd: drawingController.couldDraw ? _onPanEnd : null,
+            onPanDown: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanDown
+                : null,
+            onPanUpdate: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanUpdate
+                : null,
+            onPanEnd: drawingController.couldDraw ||
+                    drawingController.selectedContent != null
+                ? _onPanEnd
+                : null,
             child: child,
-            onTapDown: (TapDownDetails details) {},
           );
         },
         child: ClipRect(
