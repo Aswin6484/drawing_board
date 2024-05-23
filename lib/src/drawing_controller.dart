@@ -531,13 +531,13 @@ class DrawingController extends ChangeNotifier {
       currentContent = null;
       PaintContent.selectedTimestamp = null;
       callBack = null;
-
-      if (isHandlerAdded) {
-        HardwareKeyboard.instance.removeHandler(_handleKey);
-        isHandlerAdded = false;
-      }
-      notifyListeners();
     }
+
+    if (isHandlerAdded) {
+      HardwareKeyboard.instance.removeHandler(_handleKey);
+      isHandlerAdded = false;
+    }
+    notifyListeners();
   }
 
   /// Check if undo is available.
