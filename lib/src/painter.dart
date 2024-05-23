@@ -97,8 +97,10 @@ class Painter extends StatelessWidget {
           }
         } else {
           // Update the position of the selected content
-          selectedContent!.updatePosition(pme.localPosition);
-          selectedContent!.drawing(pme.localPosition);
+          if (selectedContent != null) {
+            selectedContent!.updatePosition(pme.localPosition);
+            selectedContent!.drawing(pme.localPosition);
+          }
         }
       }
       return;
