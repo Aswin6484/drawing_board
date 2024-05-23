@@ -52,6 +52,8 @@ class Circle extends PaintContent {
   /// 圆心
   Offset center = Offset.zero;
 
+  int direction = 0;
+
   /// 半径
   double radius = 0;
   double _rotation = 0.0;
@@ -85,30 +87,44 @@ class Circle extends PaintContent {
   }
 
   @override
-  void updatePosition(Offset newPosition) {
-    final Offset delta = newPosition - startPoint;
-    endPoint = endPoint + delta;
-
-    // Calculate the rotation based on the movement of the endpoint
-    final double dX = endPoint.dx - startPoint.dx;
-    final double dY = endPoint.dy - startPoint.dy;
-    final double angle = atan2(dY, dX);
-    // Update rotation of the ellipse
-    _rotation = angle;
-  }
+  void updatePosition(Offset newPosition) {}
 
   @override
   void startDraw(Offset startPoint) {
     this.startPoint = startPoint;
+    this.endPoint = startPoint;
     center = startPoint;
   }
 
   @override
   void drawing(Offset nowPoint) {
-    endPoint = nowPoint;
-    center = Offset(
-        (startPoint.dx + endPoint.dx) / 2, (startPoint.dy + endPoint.dy) / 2);
-    radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+    switch (direction) {
+      case 0:
+        endPoint = nowPoint;
+        center = Offset((startPoint.dx + endPoint.dx) / 2,
+            (startPoint.dy + endPoint.dy) / 2);
+        radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+      case 4:
+        startPoint = Offset(nowPoint.dx, startPoint.dy);
+        center = Offset((startPoint.dx + endPoint.dx) / 2,
+            (startPoint.dy + endPoint.dy) / 2);
+        radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+      case 3:
+        endPoint = Offset(nowPoint.dx, endPoint.dy);
+        center = Offset((startPoint.dx + endPoint.dx) / 2,
+            (startPoint.dy + endPoint.dy) / 2);
+        radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+      case 2:
+        endPoint = Offset(endPoint.dx, nowPoint.dy);
+        center = Offset((startPoint.dx + endPoint.dx) / 2,
+            (startPoint.dy + endPoint.dy) / 2);
+        radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+      case 1:
+        startPoint = Offset(startPoint.dx, nowPoint.dy);
+        center = Offset((startPoint.dx + endPoint.dx) / 2,
+            (startPoint.dy + endPoint.dy) / 2);
+        radius = (endPoint - (startFromCenter ? startPoint : center)).distance;
+    }
   }
 
   @override
@@ -196,7 +212,15 @@ class Circle extends PaintContent {
 
   @override
   void editDrawing(Offset nowPoint) {
-    // TODO: implement editDrawing
+    if ((nowPoint - top).distance <= circleRadius + 5) {
+      direction = 1;
+    } else if ((nowPoint - bottom).distance <= circleRadius + 5) {
+      direction = 2;
+    } else if ((nowPoint - right).distance <= circleRadius + 5) {
+      direction = 3;
+    } else if ((nowPoint - left).distance <= circleRadius + 5) {
+      direction = 4;
+    }
   }
 
   @override
@@ -210,6 +234,7 @@ class Circle extends PaintContent {
     // Calculate the width and height of the oval
     final double width = (endPoint.dx - startPoint.dx).abs() / 2;
     final double height = (endPoint.dy - startPoint.dy).abs() / 2;
+
     // Calculate positions for the selection circles
     top = Offset(center.dx, center.dy - height);
     bottom = Offset(center.dx, center.dy + height);

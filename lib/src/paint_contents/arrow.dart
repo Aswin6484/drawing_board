@@ -27,16 +27,23 @@ class Arrow extends PaintContent {
   double _rotation = 0.0;
 
   double get rotation => _rotation;
-  double selectionCircleRadius = 6.0;
   Offset startPoint = Offset.zero;
   Offset endPoint = Offset.zero;
+  bool isStartEdited = false;
 
   @override
-  void startDraw(Offset startPoint) => this.startPoint = startPoint;
+  void startDraw(Offset startPoint) {
+    this.startPoint = startPoint;
+    endPoint = startPoint;
+  }
 
   @override
   void drawing(Offset nowPoint) {
-    endPoint = nowPoint;
+    if (isStartEdited) {
+      startPoint = nowPoint;
+    } else {
+      endPoint = nowPoint;
+    }
   }
 
   @override
@@ -69,6 +76,16 @@ class Arrow extends PaintContent {
         dY - arrowSize * sin(angle + arrowAngle));
     path.close();
     canvas.drawPath(path, paint);
+
+    final Paint paint2 =
+        paint.copyWith(strokeWidth: 1, style: PaintingStyle.fill);
+    path.moveTo(dX - arrowSize * cos(angle - arrowAngle),
+        dY - arrowSize * sin(angle - arrowAngle));
+    path.lineTo(dX, dY);
+    path.lineTo(dX - arrowSize * cos(angle + arrowAngle),
+        dY - arrowSize * sin(angle + arrowAngle));
+    path.close();
+    canvas.drawPath(path, paint2);
 
     // Restore the canvas to its previous state
     canvas.restore();
@@ -131,18 +148,7 @@ class Arrow extends PaintContent {
   Offset? getAnchorPoint() => startPoint;
 
   @override
-  void updatePosition(Offset newPosition) {
-    final Offset delta = newPosition - startPoint;
-    endPoint = endPoint + delta;
-
-    // Calculate the rotation based on the movement of the endpoint
-    final double dX = endPoint.dx - startPoint.dx;
-    final double dY = endPoint.dy - startPoint.dy;
-    final double angle = atan2(dY, dX);
-
-    // Update rotation of the arrow
-    _rotation = angle;
-  }
+  void updatePosition(Offset newPosition) {}
 
   @override
   void updateUI() {
@@ -183,10 +189,9 @@ class Arrow extends PaintContent {
   @override
   void editDrawing(Offset nowPoint) {
     if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
-      startPoint = endPoint;
-      endPoint = nowPoint;
+      isStartEdited = true;
     } else {
-      endPoint = nowPoint;
+      isStartEdited = false;
     }
   }
 }

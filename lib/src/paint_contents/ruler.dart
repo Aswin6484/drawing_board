@@ -38,21 +38,13 @@ class Ruler extends PaintContent {
   Offset getAnchorPoint() => startPoint;
 
   @override
-  void updatePosition(Offset newPosition) {
-    final Offset delta = newPosition - startPoint;
-    endPoint = endPoint + delta;
-
-    // Calculate the rotation based on the movement of the endpoint
-    final double dX = endPoint.dx - startPoint.dx;
-    final double dY = endPoint.dy - startPoint.dy;
-    final double angle = atan2(dY, dX);
-
-    // Update rotation of the arrow
-    _rotation = angle;
-  }
+  void updatePosition(Offset newPosition) {}
 
   @override
-  void startDraw(Offset startPoint) => this.startPoint = startPoint;
+  void startDraw(Offset startPoint) {
+    this.startPoint = startPoint;
+    endPoint = startPoint;
+  }
 
   @override
   void drawing(Offset nowPoint) {

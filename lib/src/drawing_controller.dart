@@ -526,6 +526,9 @@ class DrawingController extends ChangeNotifier {
 
   void deselectContent() {
     if (_selectedContent != null) {
+      if (_selectedContent.runtimeType == Circle) {
+        (_selectedContent as Circle).direction = 5;
+      }
       _selectedContent!.isSelected = false;
       _selectedContent = null;
       currentContent = null;

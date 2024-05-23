@@ -37,21 +37,7 @@ class StraightLine extends PaintContent {
   Offset? getAnchorPoint() => startPoint;
 
   @override
-  void updatePosition(Offset newPosition) {
-    if (startPoint == null) {
-      startPoint = newPosition;
-      endPoint = newPosition;
-      return;
-    }
-
-    if (endPoint == null) {
-      endPoint = newPosition;
-      return;
-    }
-
-    final Offset delta = newPosition - endPoint!;
-    endPoint = endPoint! + delta;
-  }
+  void updatePosition(Offset newPosition) {}
 
   @override
   void startDraw(Offset startPoint) => this.startPoint = startPoint;
