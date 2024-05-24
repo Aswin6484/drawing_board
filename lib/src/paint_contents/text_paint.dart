@@ -47,7 +47,7 @@ class TextPaint extends PaintContent {
   Offset position = Offset.zero;
   String text = '';
   String uiText = '';
-  Color textColor = Colors.white;
+  Color textColor = Colors.red;
   int fontSize = 30;
   bool isPipe = true;
 

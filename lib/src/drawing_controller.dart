@@ -215,7 +215,7 @@ class DrawingController extends ChangeNotifier {
   bool isHandlerAdded = false;
 
   /// Grid on or off
-  bool isGridOn = false;
+  bool isGridOn = true;
   int gridWidthSpace = 100;
   int gridHeightSpace = 50;
   Paint gridPaint = Paint()
@@ -248,13 +248,13 @@ class DrawingController extends ChangeNotifier {
       var wid = drawConfig.value.size!.width;
       var hei = drawConfig.value.size!.height;
       for (int i = 0; i < wid; i += gridWidthSpace) {
-        _drawDashedLine(
-            canvas, Offset(i.toDouble(), 0), Offset(i.toDouble(), hei));
+        canvas.drawLine(
+            Offset(i.toDouble(), 0), Offset(i.toDouble(), hei), gridPaint);
       }
 
       for (int i = 0; i < hei; i += gridHeightSpace) {
-        _drawDashedLine(
-            canvas, Offset(0, i.toDouble()), Offset(wid, i.toDouble()));
+        canvas.drawLine(
+            Offset(0, i.toDouble()), Offset(wid, i.toDouble()), gridPaint);
       }
     }
   }
