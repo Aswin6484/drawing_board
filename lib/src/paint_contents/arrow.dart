@@ -58,8 +58,12 @@ class Arrow extends PaintContent {
       final double scaleFactor = minDraw / currentLineLength;
       final double extendedDx = dX * scaleFactor;
       final double extendedDy = dY * scaleFactor;
-
-      endPoint = Offset(startPoint.dx + extendedDx, startPoint.dy + extendedDy);
+      if (isStartEdited) {
+        startPoint = Offset(endPoint.dx - extendedDx, endPoint.dy - extendedDy);
+      } else {
+        endPoint =
+            Offset(startPoint.dx + extendedDx, startPoint.dy + extendedDy);
+      }
     }
     final double dX = endPoint.dx - startPoint.dx;
     final double dY = endPoint.dy - startPoint.dy;
@@ -198,7 +202,7 @@ class Arrow extends PaintContent {
   void updatedragposition(Offset newPosition) {
     final Offset delta = newPosition - startPoint;
     startPoint = newPosition;
-    endPoint = endPoint! + delta;
+    endPoint = endPoint + delta;
   }
 
   @override
