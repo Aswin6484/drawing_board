@@ -196,6 +196,12 @@ class Triangle extends PaintContent {
   void editDrawing(ui.Offset nowPoint) {
     // TODO: implement editDrawing
   }
+
+  @override
+  bool checkComponentInCanvas() {
+    // TODO: implement checkComponentInCanvas
+    throw UnimplementedError();
+  }
 }
 
 /// Custom drawn image
@@ -312,6 +318,12 @@ class ImageContent extends PaintContent {
   @override
   void editDrawing(ui.Offset nowPoint) {
     // TODO: implement editDrawing
+  }
+
+  @override
+  bool checkComponentInCanvas() {
+    // TODO: implement checkComponentInCanvas
+    throw UnimplementedError();
   }
 }
 

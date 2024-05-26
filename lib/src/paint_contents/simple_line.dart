@@ -106,4 +106,9 @@ class SimpleLine extends PaintContent {
   void updateScale(Offset position) {
     // TODO: implement updateScale
   }
+
+  @override
+  bool checkComponentInCanvas() {
+    return true;
+  }
 }

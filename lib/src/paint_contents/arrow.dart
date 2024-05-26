@@ -24,7 +24,7 @@ class Arrow extends PaintContent {
 
   static const int dashWidth = 4;
   static const int dashSpace = 4;
-  double _rotation = 0.0;
+  final double _rotation = 0.0;
 
   double get rotation => _rotation;
   Offset startPoint = Offset.zero;
@@ -48,6 +48,19 @@ class Arrow extends PaintContent {
 
   @override
   void draw(Canvas canvas, Size size, bool deeper) {
+    if (!checkComponentInCanvas() && isEditing) {
+      final double dX = endPoint.dx - startPoint.dx;
+      final double dY = endPoint.dy - startPoint.dy;
+      final double currentLineLength =
+          sqrt(dX * dX + dY * dY); // Calculate current line length
+
+      // Normalize the direction vector for scaling
+      final double scaleFactor = minDraw / currentLineLength;
+      final double extendedDx = dX * scaleFactor;
+      final double extendedDy = dY * scaleFactor;
+
+      endPoint = Offset(startPoint.dx + extendedDx, startPoint.dy + extendedDy);
+    }
     final double dX = endPoint.dx - startPoint.dx;
     final double dY = endPoint.dy - startPoint.dy;
     final double angle = atan2(dY, dX);
@@ -65,7 +78,6 @@ class Arrow extends PaintContent {
     canvas.rotate(rotation * pi / 180);
 
     // Draw the line from startPoint to endPoint
-    canvas.drawLine(Offset.zero, Offset(dX, dY), paint);
 
     // Draw the arrow head
     final Path path = Path();
@@ -75,7 +87,6 @@ class Arrow extends PaintContent {
     path.lineTo(dX - arrowSize * cos(angle + arrowAngle),
         dY - arrowSize * sin(angle + arrowAngle));
     path.close();
-    canvas.drawPath(path, paint);
 
     final Paint paint2 =
         paint.copyWith(strokeWidth: 1, style: PaintingStyle.fill);
@@ -85,7 +96,18 @@ class Arrow extends PaintContent {
     path.lineTo(dX - arrowSize * cos(angle + arrowAngle),
         dY - arrowSize * sin(angle + arrowAngle));
     path.close();
-    canvas.drawPath(path, paint2);
+
+    if (!checkComponentInCanvas()) {
+      var temp = paint.copyWith(color: paint.color.withOpacity(0.5));
+      var temp2 = paint2.copyWith(color: paint2.color.withOpacity(0.5));
+      canvas.drawLine(Offset.zero, Offset(dX, dY), temp);
+      canvas.drawPath(path, temp);
+      canvas.drawPath(path, temp2);
+    } else {
+      canvas.drawLine(Offset.zero, Offset(dX, dY), paint);
+      canvas.drawPath(path, paint);
+      canvas.drawPath(path, paint2);
+    }
 
     // Restore the canvas to its previous state
     canvas.restore();
@@ -174,11 +196,9 @@ class Arrow extends PaintContent {
 
   @override
   void updatedragposition(Offset newPosition) {
-    final Offset delta = newPosition - startPoint!;
+    final Offset delta = newPosition - startPoint;
     startPoint = newPosition;
-    if (endPoint != null) {
-      endPoint = endPoint! + delta;
-    }
+    endPoint = endPoint! + delta;
   }
 
   @override
@@ -188,10 +208,16 @@ class Arrow extends PaintContent {
 
   @override
   void editDrawing(Offset nowPoint) {
+    isEditing = true;
     if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
       isStartEdited = true;
     } else {
       isStartEdited = false;
     }
+  }
+
+  @override
+  bool checkComponentInCanvas() {
+    return isOnCanvas = !((startPoint - endPoint).distance < minDraw);
   }
 }

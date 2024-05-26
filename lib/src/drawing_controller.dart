@@ -494,6 +494,19 @@ class DrawingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  deleteHistory() {
+    final List<DateTime> timeStamps = [];
+    for (PaintContent pc in _history) {
+      if (!pc.checkComponentInCanvas()) {
+        timeStamps.add(pc.timestamp);
+      }
+    }
+
+    for (final DateTime t in timeStamps) {
+      removePaintContentByTimestamp(t);
+    }
+  }
+
   /// 撤销
   void undo() {
     if (_currentIndex > 0) {

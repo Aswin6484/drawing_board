@@ -116,6 +116,11 @@ class Painter extends StatelessWidget {
     isDragging = false;
     if (!drawingController.couldDraw ||
         drawingController.currentContent == null) {
+      if (drawingController.selectedContent != null &&
+          drawingController.currentContent != null) {
+        drawingController.currentContent!.isEditing = false;
+      }
+      drawingController.deleteHistory();
       return;
     }
 
@@ -123,6 +128,7 @@ class Painter extends StatelessWidget {
       drawingController.drawing(pue.localPosition);
     }
     drawingController.endDraw();
+    drawingController.deleteHistory();
     onPointerUp?.call(pue);
   }
 
@@ -133,6 +139,7 @@ class Painter extends StatelessWidget {
     drawingController.draggingContent = null;
     drawingController.draggingOffset = null;
     drawingController.endDraw();
+    drawingController.deleteHistory();
   }
 
   /// GestureDetector 占位
@@ -201,6 +208,7 @@ class _UpPainter extends CustomPainter {
     if (controller.currentContent != null) {
       controller.currentContent?.draw(canvas, size, false);
     }
+
     for (final PaintContent content in controller.getHistory) {
       // Draw the paint content
       content.draw(canvas, size, false);

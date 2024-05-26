@@ -128,6 +128,11 @@ class TextPaint extends PaintContent {
   }
 
   @override
+  bool checkComponentInCanvas() {
+    return true;
+  }
+
+  @override
   bool containsContent(Offset offset) {
     final TextSpan textSpan = TextSpan(
       text: text,

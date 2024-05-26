@@ -13,6 +13,9 @@ abstract class PaintContent {
   Offset position = Offset.zero;
   static DateTime? selectedTimestamp;
   double selectionCircleRadius = 6.0;
+  double minDraw = 50.0;
+  bool isOnCanvas = false;
+  bool isEditing = false;
 
   /// 画笔
   late Paint paint;
@@ -37,6 +40,7 @@ abstract class PaintContent {
   void startDraw(Offset startPoint);
 
   bool containsContent(Offset offset);
+  bool checkComponentInCanvas();
   Offset? getAnchorPoint();
   void updatePosition(Offset newPosition);
   void updateUI();

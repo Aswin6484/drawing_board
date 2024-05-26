@@ -33,6 +33,7 @@ class StraightLine extends PaintContent {
   double circleRadius = 6.0;
   Offset? startPoint;
   Offset? endPoint;
+
   @override
   Offset? getAnchorPoint() => startPoint;
 
@@ -47,6 +48,7 @@ class StraightLine extends PaintContent {
 
   @override
   void editDrawing(Offset nowPoint) {
+    isEditing = true;
     if ((nowPoint - startPoint!).distance <= selectionCircleRadius) {
       startPoint = endPoint;
       endPoint = nowPoint;
@@ -61,46 +63,27 @@ class StraightLine extends PaintContent {
       return;
     }
 
-    // Calculate the midpoint for rotation
-    final Offset midpoint = Offset(
-      (startPoint!.dx + endPoint!.dx) / 2,
-      (startPoint!.dy + endPoint!.dy) / 2,
-    );
-
-    // Save the current state of the canvas
     canvas.save();
+    if (!checkComponentInCanvas() && isEditing) {
+      final double dX = endPoint!.dx - startPoint!.dx;
+      final double dY = endPoint!.dy - startPoint!.dy;
+      final double currentLineLength =
+          sqrt(dX * dX + dY * dY); // Calculate current line length
 
-    // Translate the canvas so the midpoint is the origin of rotation
-    canvas.translate(midpoint.dx, midpoint.dy);
+      // Normalize the direction vector for scaling
+      final double scaleFactor = minDraw / currentLineLength;
+      final double extendedDx = dX * scaleFactor;
+      final double extendedDy = dY * scaleFactor;
 
-    // Rotate the canvas around the origin (which is now at the midpoint)
-    canvas.rotate(_rotation * pi / 180);
-
-    // Translate back after rotation
-    canvas.translate(-midpoint.dx, -midpoint.dy);
-
-    // Translate the endPoint so the midpoint is at the origin
-    final Offset translatedEndPoint = Offset(
-      endPoint!.dx - midpoint.dx,
-      endPoint!.dy - midpoint.dy,
-    );
-
-    // Rotate the translated endPoint
-    final Offset rotatedEndPoint = Offset(
-      translatedEndPoint.dx * cos(_rotation * pi / 180) -
-          translatedEndPoint.dy * sin(_rotation * pi / 180),
-      translatedEndPoint.dx * sin(_rotation * pi / 180) +
-          translatedEndPoint.dy * cos(_rotation * pi / 180),
-    );
-
-    // Translate the rotatedEndPoint back to its original position
-    final Offset finalEndPoint = Offset(
-      rotatedEndPoint.dx + midpoint.dx,
-      rotatedEndPoint.dy + midpoint.dy,
-    );
-
-    // Draw the line from startPoint to finalEndPoint
-    canvas.drawLine(startPoint!, finalEndPoint, paint);
+      endPoint =
+          Offset(startPoint!.dx + extendedDx, startPoint!.dy + extendedDy);
+    }
+    if ((startPoint! - endPoint!).distance < minDraw) {
+      Paint drawMinPaint = paint.copyWith(color: paint.color.withOpacity(0.5));
+      canvas.drawLine(startPoint!, endPoint!, drawMinPaint);
+    } else {
+      canvas.drawLine(startPoint!, endPoint!, paint);
+    }
 
     // Restore the canvas to its previous state
     canvas.restore();
@@ -171,6 +154,7 @@ class StraightLine extends PaintContent {
   void updateUI() {
     // TODO: implement updateUI
   }
+
   @override
   void drawSelection(Canvas canvas) {
     final Paint selectionPaint = Paint()
@@ -184,6 +168,11 @@ class StraightLine extends PaintContent {
     if (endPoint != null) {
       canvas.drawCircle(endPoint!, circleRadius, selectionPaint);
     }
+  }
+
+  @override
+  bool checkComponentInCanvas() {
+    return isOnCanvas = !((startPoint! - endPoint!).distance < minDraw);
   }
 
   @override

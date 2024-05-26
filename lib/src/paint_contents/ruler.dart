@@ -53,6 +53,7 @@ class Ruler extends PaintContent {
 
   @override
   void editDrawing(Offset nowPoint) {
+    isEditing = true;
     if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
       startPoint = endPoint;
       endPoint = nowPoint;
@@ -88,6 +89,20 @@ class Ruler extends PaintContent {
   }
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
+    if (!checkComponentInCanvas() && isEditing) {
+      final double dX = endPoint.dx - startPoint.dx;
+      final double dY = endPoint.dy - startPoint.dy;
+      final double currentLineLength =
+          sqrt(dX * dX + dY * dY); // Calculate current line length
+
+      // Normalize the direction vector for scaling
+      final double scaleFactor = minDraw / currentLineLength;
+      final double extendedDx = dX * scaleFactor;
+      final double extendedDy = dY * scaleFactor;
+
+      endPoint = Offset(startPoint.dx + extendedDx, startPoint.dy + extendedDy);
+    }
+
     const int dashLength = 10;
     const double dashRatio = 0.5;
 
@@ -110,8 +125,12 @@ class Ruler extends PaintContent {
       final double endY =
           currentY + dy * min(actualDashLength, remainingDistance);
 
-      canvas.drawLine(Offset(currentX, currentY), Offset(endX, endY), paint);
-
+      if (!checkComponentInCanvas()) {
+        var temp = paint.copyWith(color: paint.color.withOpacity(0.5));
+        canvas.drawLine(Offset(currentX, currentY), Offset(endX, endY), temp);
+      } else {
+        canvas.drawLine(Offset(currentX, currentY), Offset(endX, endY), paint);
+      }
       remainingDistance -= actualDashLength + gapLength;
       currentX = endX + dx * gapLength;
       currentY = endY + dy * gapLength;
@@ -143,7 +162,6 @@ class Ruler extends PaintContent {
       canvas.rotate(atan2(dy, dx)); // Rotate by the line's slope
       canvas.translate(-(textPainter.width * 0.5), textOffsetY);
     }
-
     textPainter.paint(
         canvas, Offset.zero); // Draw text at origin (after translation)
     canvas.restore(); // Restore canvas state
@@ -227,13 +245,21 @@ class Ruler extends PaintContent {
   void updatedragposition(Offset newPosition) {
     final Offset delta = newPosition - startPoint!;
     startPoint = newPosition;
-    if (endPoint != null) {
-      endPoint = endPoint! + delta;
-    }
+    endPoint = endPoint + delta;
   }
 
   @override
   void updateScale(Offset position) {
     // TODO: implement updateScale
+  }
+
+  @override
+  bool checkComponentInCanvas() {
+    if ((startPoint - endPoint).distance < minDraw) {
+      isOnCanvas = false;
+    } else {
+      isOnCanvas = true;
+    }
+    return isOnCanvas;
   }
 }

@@ -116,4 +116,9 @@ class Eraser extends PaintContent {
   void editDrawing(Offset nowPoint) {
     // TODO: implement editDrawing
   }
+
+  @override
+  bool checkComponentInCanvas() {
+    return true;
+  }
 }
