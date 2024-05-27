@@ -128,6 +128,21 @@ class TextPaint extends PaintContent {
   }
 
   @override
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
+    Offset position = updatePosition;
+    final List<Offset> points = [position];
+    for (final point in points) {
+      if (point.dx < 0 ||
+          point.dx > basePoint.dx ||
+          point.dy < 0 ||
+          point.dy > basePoint.dy) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
   bool checkComponentInCanvas() {
     return true;
   }

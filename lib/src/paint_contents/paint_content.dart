@@ -53,6 +53,8 @@ abstract class PaintContent {
   /// toJson
   Map<String, dynamic> toContentJson();
 
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition);
+
   /// toJson
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

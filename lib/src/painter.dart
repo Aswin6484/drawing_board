@@ -37,46 +37,53 @@ class Painter extends StatelessWidget {
 
   /// 手指落下
   void _onPointerDown(PointerDownEvent pde) {
-    if (drawingController.selectedContent == null) {
-      selectedContent =
-          drawingController.getContentAtPosition(pde.localPosition);
-      if (selectedContent != null) {
-        drawingController.selectContent(selectedContent!);
-      }
-    } else {
-      selectedContent =
-          drawingController.getContentAtPosition(pde.localPosition);
-      if (selectedContent == null) {
-        drawingController.deselectContent();
-        drawingController.setPaintContent(drawingController.lastSelected);
-        onPointerDown?.call(pde);
-        return;
+    if ((drawingController.drawConfig.value.size!.width >=
+                pde.localPosition.dx &&
+            0 <= pde.localPosition.dx) &&
+        (drawingController.drawConfig.value.size!.height >=
+                pde.localPosition.dy &&
+            0 <= pde.localPosition.dy)) {
+      if (drawingController.selectedContent == null) {
+        selectedContent =
+            drawingController.getContentAtPosition(pde.localPosition);
+        if (selectedContent != null) {
+          drawingController.selectContent(selectedContent!);
+        }
       } else {
-        drawingController.selectContent(selectedContent!);
-        if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
-          // logic change
-          isDragging = false;
-          selectedContent!.editDrawing(pde.localPosition);
+        selectedContent =
+            drawingController.getContentAtPosition(pde.localPosition);
+        if (selectedContent == null) {
+          drawingController.deselectContent();
+          drawingController.setPaintContent(drawingController.lastSelected);
+          onPointerDown?.call(pde);
+          return;
         } else {
-          final Offset touchPosition = pde.localPosition;
-          final PaintContent? content =
-              drawingController.getContentAtPosition(pde.localPosition);
-          if (content != null &&
-              !content.isTapOnSelectionCircle(pde.localPosition)) {
-            drawingController.draggingContent = content;
-            drawingController.draggingOffset =
-                touchPosition - content.getAnchorPoint()!;
-            isDragging = true;
+          drawingController.selectContent(selectedContent!);
+          if (selectedContent!.isTapOnSelectionCircle(pde.localPosition)) {
+            // logic change
+            isDragging = false;
+            selectedContent!.editDrawing(pde.localPosition);
+          } else {
+            final Offset touchPosition = pde.localPosition;
+            final PaintContent? content =
+                drawingController.getContentAtPosition(pde.localPosition);
+            if (content != null &&
+                !content.isTapOnSelectionCircle(pde.localPosition)) {
+              drawingController.draggingContent = content;
+              drawingController.draggingOffset =
+                  touchPosition - content.getAnchorPoint()!;
+              isDragging = true;
+            }
           }
         }
       }
-    }
-    if (!drawingController.couldDraw) {
+      if (!drawingController.couldDraw) {
+        onPointerDown?.call(pde);
+        return;
+      }
+      drawingController.startDraw(pde.localPosition);
       onPointerDown?.call(pde);
-      return;
     }
-    drawingController.startDraw(pde.localPosition);
-    onPointerDown?.call(pde);
   }
 
   /// 手指移动
@@ -93,21 +100,44 @@ class Painter extends StatelessWidget {
                 pme.localPosition - drawingController.draggingOffset!;
 
             // Update position of dragging content
-            drawingController.draggingContent!.updatedragposition(newPosition);
+            if (drawingController.draggingContent!.checkInsideCanvas(
+                Offset(drawingController.drawConfig.value.size!.width,
+                    drawingController.drawConfig.value.size!.height),
+                newPosition)) {
+              drawingController.draggingContent!
+                  .updatedragposition(newPosition);
+            }
           }
         } else {
           // Update the position of the selected content
           if (selectedContent != null) {
             selectedContent!.updatePosition(pme.localPosition);
-            selectedContent!.drawing(pme.localPosition);
+            if ((drawingController.drawConfig.value.size!.width >=
+                        pme.localPosition.dx &&
+                    0 <= pme.localPosition.dx) &&
+                (drawingController.drawConfig.value.size!.height >=
+                        pme.localPosition.dy &&
+                    0 <= pme.localPosition.dy)) {
+              selectedContent!.drawing(pme.localPosition);
+            }
           }
         }
       }
+
+      onPointerMove?.call(pme);
       return;
     }
 
     // If in drawing mode, update the drawing
-    drawingController.drawing(pme.localPosition);
+
+    if ((drawingController.drawConfig.value.size!.width >=
+                pme.localPosition.dx &&
+            0 <= pme.localPosition.dx) &&
+        (drawingController.drawConfig.value.size!.height >=
+                pme.localPosition.dy &&
+            0 <= pme.localPosition.dy)) {
+      drawingController.drawing(pme.localPosition);
+    }
     onPointerMove?.call(pme);
   }
 
@@ -125,7 +155,14 @@ class Painter extends StatelessWidget {
     }
 
     if (drawingController.startPoint == pue.localPosition) {
-      drawingController.drawing(pue.localPosition);
+      if ((drawingController.drawConfig.value.size!.width >=
+                  pue.localPosition.dx &&
+              0 <= pue.localPosition.dx) &&
+          (drawingController.drawConfig.value.size!.height >=
+                  pue.localPosition.dy &&
+              0 <= pue.localPosition.dy)) {
+        drawingController.drawing(pue.localPosition);
+      }
     }
     drawingController.endDraw();
     drawingController.deleteHistory();

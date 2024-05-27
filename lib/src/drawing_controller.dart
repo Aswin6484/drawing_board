@@ -176,6 +176,9 @@ class DrawingController extends ChangeNotifier {
   PaintContent? _selectedContent;
   PaintContent? get selectedContent => _selectedContent;
 
+  int canvasHeight = 0;
+  int canvasWidth = 0;
+
   /// 获取绘制图层/历史
   List<PaintContent> get getHistory => _history;
 

@@ -202,6 +202,12 @@ class Triangle extends PaintContent {
     // TODO: implement checkComponentInCanvas
     throw UnimplementedError();
   }
+
+  @override
+  bool checkInsideCanvas(ui.Offset basePoint, Offset updatePosition) {
+    // TODO: implement checkInsideCanvas
+    throw UnimplementedError();
+  }
 }
 
 /// Custom drawn image
@@ -323,6 +329,12 @@ class ImageContent extends PaintContent {
   @override
   bool checkComponentInCanvas() {
     // TODO: implement checkComponentInCanvas
+    throw UnimplementedError();
+  }
+
+  @override
+  bool checkInsideCanvas(ui.Offset basePoint, Offset updatePosition) {
+    // TODO: implement checkInsideCanvas
     throw UnimplementedError();
   }
 }

@@ -168,6 +168,23 @@ class Ruler extends PaintContent {
   }
 
   @override
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
+    final Offset delta = updatePosition - startPoint;
+    var startPointTemp = updatePosition;
+    var endPointTemp = endPoint + delta;
+    final List<Offset> points = [startPointTemp, endPointTemp];
+    for (final point in points) {
+      if (point.dx < 0 ||
+          point.dx > basePoint.dx ||
+          point.dy < 0 ||
+          point.dy > basePoint.dy) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
   Ruler copy() => Ruler();
 
   @override

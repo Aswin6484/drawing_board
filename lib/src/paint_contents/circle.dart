@@ -214,6 +214,8 @@ class Circle extends PaintContent {
       // Draw the rotated circle
       canvas.drawCircle(startFromCenter ? startPoint : center, radius, temp);
     }
+
+    canvas.drawLine(Offset.zero, Offset.zero, paint);
     // Restore the canvas to its previous state
     canvas.restore();
   }
@@ -233,6 +235,28 @@ class Circle extends PaintContent {
       'paint': paint.toJson(),
       'timestamp': timestamp.millisecondsSinceEpoch,
     };
+  }
+
+  @override
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
+    final Offset delta = updatePosition - center;
+    final Offset startPointTemp = startPoint + delta;
+    final Offset endPointTemp = endPoint + delta;
+
+    final List<Offset> points = <Offset>[
+      startPointTemp,
+      endPointTemp,
+      updatePosition
+    ];
+    for (final Offset point in points) {
+      if (point.dx < 0 ||
+          point.dx > basePoint.dx ||
+          point.dy < 0 ||
+          point.dy > basePoint.dy) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override

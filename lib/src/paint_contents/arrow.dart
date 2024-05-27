@@ -118,6 +118,23 @@ class Arrow extends PaintContent {
   }
 
   @override
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
+    final Offset delta = updatePosition - startPoint;
+    final Offset startPointTemp = updatePosition;
+    final Offset endPointTemp = endPoint + delta;
+    final List<Offset> points = [startPointTemp, endPointTemp];
+    for (final Offset point in points) {
+      if (point.dx < 0 ||
+          point.dx > basePoint.dx ||
+          point.dy < 0 ||
+          point.dy > basePoint.dy) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
   Arrow copy() => Arrow();
 
   @override

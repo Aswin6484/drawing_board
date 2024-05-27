@@ -25,6 +25,20 @@ class SimpleLine extends PaintContent {
     );
   }
 
+  @override
+  bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
+    final List<Offset> points = [];
+    for (final point in points) {
+      if (point.dx < 0 ||
+          point.dx > basePoint.dx ||
+          point.dy < 0 ||
+          point.dy > basePoint.dy) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// 绘制路径
   DrawPath path = DrawPath();
 
