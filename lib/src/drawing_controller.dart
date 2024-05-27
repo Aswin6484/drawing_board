@@ -218,7 +218,7 @@ class DrawingController extends ChangeNotifier {
   bool isHandlerAdded = false;
 
   /// Grid on or off
-  bool isGridOn = true;
+  bool isGridOn = false;
   int gridWidthSpace = 40;
   int gridHeightSpace = 40;
   Paint gridPaint = Paint()
