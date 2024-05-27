@@ -222,7 +222,7 @@ class DrawingController extends ChangeNotifier {
   int gridWidthSpace = 40;
   int gridHeightSpace = 40;
   Paint gridPaint = Paint()
-    ..color = ui.Color.fromARGB(255, 149, 255, 49)
+    ..color = const ui.Color.fromARGB(255, 149, 255, 49)
     ..isAntiAlias = true
     ..strokeWidth = 1;
 

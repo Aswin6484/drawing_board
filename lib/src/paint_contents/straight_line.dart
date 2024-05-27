@@ -49,7 +49,7 @@ class StraightLine extends PaintContent {
   @override
   void editDrawing(Offset nowPoint) {
     isEditing = true;
-    if ((nowPoint - startPoint!).distance <= selectionCircleRadius) {
+    if ((nowPoint - startPoint!).distance <= threshold) {
       startPoint = endPoint;
       endPoint = nowPoint;
     } else {
@@ -84,7 +84,6 @@ class StraightLine extends PaintContent {
     } else {
       canvas.drawLine(startPoint!, endPoint!, paint);
     }
-
     // Restore the canvas to its previous state
     canvas.restore();
   }
@@ -182,9 +181,8 @@ class StraightLine extends PaintContent {
     }
 
     final bool isNearStartPoint =
-        (tapOffset - startPoint!).distance <= circleRadius;
-    final bool isNearEndPoint =
-        (tapOffset - endPoint!).distance <= circleRadius;
+        (tapOffset - startPoint!).distance <= threshold;
+    final bool isNearEndPoint = (tapOffset - endPoint!).distance <= threshold;
 
     return isNearStartPoint || isNearEndPoint;
   }

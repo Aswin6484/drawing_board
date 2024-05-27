@@ -211,8 +211,8 @@ class Arrow extends PaintContent {
 
   @override
   bool isTapOnSelectionCircle(Offset tapOffset) {
-    return (tapOffset - startPoint).distance <= selectionCircleRadius ||
-        (tapOffset - endPoint).distance <= selectionCircleRadius;
+    return (tapOffset - startPoint).distance <= threshold ||
+        (tapOffset - endPoint).distance <= threshold;
   }
 
   @override
@@ -230,7 +230,7 @@ class Arrow extends PaintContent {
   @override
   void editDrawing(Offset nowPoint) {
     isEditing = true;
-    if ((nowPoint - startPoint).distance <= selectionCircleRadius) {
+    if ((nowPoint - startPoint).distance <= threshold) {
       isStartEdited = true;
     } else {
       isStartEdited = false;

@@ -16,6 +16,7 @@ abstract class PaintContent {
   double minDraw = 50.0;
   bool isOnCanvas = false;
   bool isEditing = false;
+  int threshold = 25;
 
   /// 画笔
   late Paint paint;

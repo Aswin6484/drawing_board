@@ -310,9 +310,9 @@ class Circle extends PaintContent {
       final double width = endPoint.dx - startPoint.dx;
       final double height = endPoint.dy - startPoint.dy;
       final double majorRadius =
-          width / 2; // Assuming major radius is along width
+          (width / 2) + threshold; // Assuming major radius is along width
       final double minorRadius =
-          height / 2; // Assuming minor radius is along height
+          (height / 2) + threshold; // Assuming minor radius is along height
 
       // Check if the rotated click position is within the ellipse's bounding rectangle
       if (rotatedClickPosition.dx >= center.dx - majorRadius &&
@@ -353,13 +353,13 @@ class Circle extends PaintContent {
   @override
   void editDrawing(Offset nowPoint) {
     isEditing = true;
-    if ((nowPoint - top).distance <= circleRadius + 5) {
+    if ((nowPoint - top).distance <= threshold) {
       direction = 1;
-    } else if ((nowPoint - bottom).distance <= circleRadius + 5) {
+    } else if ((nowPoint - bottom).distance <= threshold) {
       direction = 2;
-    } else if ((nowPoint - right).distance <= circleRadius + 5) {
+    } else if ((nowPoint - right).distance <= threshold) {
       direction = 3;
-    } else if ((nowPoint - left).distance <= circleRadius + 5) {
+    } else if ((nowPoint - left).distance <= threshold) {
       direction = 4;
     }
   }
@@ -391,10 +391,10 @@ class Circle extends PaintContent {
 
   @override
   bool isTapOnSelectionCircle(Offset tapOffset) {
-    return (tapOffset - top).distance <= circleRadius + 5 ||
-        (tapOffset - bottom).distance <= circleRadius + 5 ||
-        (tapOffset - right).distance <= circleRadius + 5 ||
-        (tapOffset - left).distance <= circleRadius + 5;
+    return (tapOffset - top).distance <= threshold ||
+        (tapOffset - bottom).distance <= threshold ||
+        (tapOffset - right).distance <= threshold ||
+        (tapOffset - left).distance <= threshold;
   }
 
   @override
