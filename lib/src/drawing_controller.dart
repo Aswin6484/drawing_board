@@ -218,9 +218,9 @@ class DrawingController extends ChangeNotifier {
   bool isHandlerAdded = false;
 
   /// Grid on or off
-  bool isGridOn = false;
-  int gridWidthSpace = 100;
-  int gridHeightSpace = 50;
+  bool isGridOn = true;
+  int gridWidthSpace = 40;
+  int gridHeightSpace = 40;
   Paint gridPaint = Paint()
     ..color = ui.Color.fromARGB(255, 149, 255, 49)
     ..isAntiAlias = true
