@@ -238,9 +238,4 @@ class TextPaint extends PaintContent {
   void updatedragposition(Offset newPosition) {
     position = newPosition;
   }
-
-  @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
 }

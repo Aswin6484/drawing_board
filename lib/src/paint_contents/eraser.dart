@@ -108,11 +108,6 @@ class Eraser extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
-
-  @override
   void editDrawing(Offset nowPoint) {
     // TODO: implement editDrawing
   }

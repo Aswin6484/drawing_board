@@ -266,11 +266,6 @@ class Ruler extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
-
-  @override
   bool checkComponentInCanvas() {
     if ((startPoint - endPoint).distance < minDraw) {
       isOnCanvas = false;

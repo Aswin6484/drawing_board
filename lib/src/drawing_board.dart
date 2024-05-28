@@ -246,7 +246,6 @@ class _DrawingBoardState extends State<DrawingBoard> {
     setState(() {
       final Offset delta =
           details.localPosition - selectedContent.getAnchorPoint()!;
-      // selectedContent.updateScale(details.localPosition);
       finalPosition = details.localPosition;
       selectedContent.updatePosition(finalPosition);
     });

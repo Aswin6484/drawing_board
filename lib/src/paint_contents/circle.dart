@@ -78,15 +78,6 @@ class Circle extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // Calculate the new radius based on the distance from the center
-    radius = (position - center).distance;
-    // Adjust startPoint and endPoint accordingly
-    startPoint = center - Offset(radius, radius);
-    endPoint = center + Offset(radius, radius);
-  }
-
-  @override
   void updatePosition(Offset newPosition) {}
 
   @override

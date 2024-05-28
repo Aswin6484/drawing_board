@@ -223,11 +223,6 @@ class Arrow extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
-
-  @override
   void editDrawing(Offset nowPoint) {
     isEditing = true;
     if ((nowPoint - startPoint).distance <= threshold) {

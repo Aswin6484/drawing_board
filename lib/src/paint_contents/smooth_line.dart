@@ -157,11 +157,6 @@ class SmoothLine extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
-
-  @override
   bool checkInsideCanvas(Offset basePoint, Offset updatePosition) {
     final List<Offset> points = [];
     for (final point in points) {

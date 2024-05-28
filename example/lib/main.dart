@@ -188,11 +188,6 @@ class Triangle extends PaintContent {
   }
 
   @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
-
-  @override
   void editDrawing(ui.Offset nowPoint) {
     // TODO: implement editDrawing
   }
@@ -314,11 +309,6 @@ class ImageContent extends PaintContent {
   @override
   void updatedragposition(ui.Offset newPosition) {
     // TODO: implement updatedragposition
-  }
-
-  @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
   }
 
   @override

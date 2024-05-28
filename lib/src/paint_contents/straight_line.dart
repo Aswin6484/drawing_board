@@ -212,9 +212,4 @@ class StraightLine extends PaintContent {
     }
     return true;
   }
-
-  @override
-  void updateScale(Offset position) {
-    // TODO: implement updateScale
-  }
 }

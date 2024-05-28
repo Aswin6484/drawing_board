@@ -49,7 +49,6 @@ abstract class PaintContent {
   Rect get bounds;
   bool isTapOnSelectionCircle(Offset tapOffset);
   void updatedragposition(Offset newPosition);
-  void updateScale(Offset position);
 
   /// toJson
   Map<String, dynamic> toContentJson();
